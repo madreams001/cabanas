@@ -1,4 +1,3 @@
-    <div class="reservas-list" id="listaReservas"></div>
   </div>
 
   <!-- Finanzas -->
@@ -784,9 +783,10 @@ function renderListado() {
   });
 
   const listaKey = lista.map(r=>r.ID).join(',');
-  if (renderListado._lastKey === listaKey && renderListado._lastFilters === JSON.stringify({filtCab, filtEstado, filtTipo, filtSocio, filtMes, filtBuscar, filtOrden})) return;
+  const cacheKey = JSON.stringify({filtCab, filtEstado, filtTipo, filtSocio, filtMes, filtBuscar, filtOrden, vistaListado});
+  if (renderListado._lastKey === listaKey && renderListado._lastFilters === cacheKey) return;
   renderListado._lastKey = listaKey;
-  renderListado._lastFilters = JSON.stringify({filtCab, filtEstado, filtTipo, filtSocio, filtMes, filtBuscar, filtOrden});
+  renderListado._lastFilters = cacheKey;
 
   const el = document.getElementById('listaReservas');
   if (lista.length===0) {
@@ -801,44 +801,34 @@ function renderListado() {
 
   // Renderizar
   let html = '';
-  const agrupar = filtOrden === 'mes';
   const esGrilla = vistaListado === 'grid';
 
-  if (agrupar) {
-    // Agrupar por mes
-    const grupos = {};
-    lista.forEach(r => {
-      const mes = (r.Entrada||'').substring(0,7);
-      if (!grupos[mes]) grupos[mes] = [];
-      grupos[mes].push(r);
-    });
+  // Agrupar por mes (siempre)
+  const grupos = {};
+  lista.forEach(r => {
+    const mes = (r.Entrada||'').substring(0,7);
+    if (!grupos[mes]) grupos[mes] = [];
+    grupos[mes].push(r);
+  });
 
-    if (esGrilla) {
-      // En grilla: un solo contenedor grid, headers ocupan todo el ancho
-      html += '<div class="reservas-list vista-grid">';
-      Object.keys(grupos).sort().forEach(mes => {
-        const [y, m] = mes.split('-');
-        const mesNombre = MESES[parseInt(m)-1] + ' ' + y;
-        html += `<div class="mes-header-grid">📅 ${mesNombre.toUpperCase()}</div>`;
-        grupos[mes].forEach(r => { html += renderCard(r); });
-      });
-      html += '</div>';
-    } else {
-      // En lista: contenedores separados por mes
-      Object.keys(grupos).sort().forEach(mes => {
-        const [y, m] = mes.split('-');
-        const mesNombre = MESES[parseInt(m)-1] + ' ' + y;
-        html += `<div style="font-size:14px;font-weight:700;color:var(--primary);margin:16px 0 8px;border-bottom:2px solid var(--primary);padding-bottom:4px;">📅 ${mesNombre.toUpperCase()}</div>`;
-        html += '<div class="reservas-list">';
-        grupos[mes].forEach(r => { html += renderCard(r); });
-        html += '</div>';
-      });
-    }
-  } else {
-    // Lista plana sin agrupar
-    html += `<div class="reservas-list${esGrilla?' vista-grid':''}">`;
-    lista.forEach(r => { html += renderCard(r); });
+  if (esGrilla) {
+    html += '<div class="reservas-list vista-grid">';
+    Object.keys(grupos).sort().forEach(mes => {
+      const [y, m] = mes.split('-');
+      const mesNombre = MESES[parseInt(m)-1] + ' ' + y;
+      html += `<div class="mes-header-grid">📅 ${mesNombre.toUpperCase()}</div>`;
+      grupos[mes].forEach(r => { html += renderCard(r); });
+    });
     html += '</div>';
+  } else {
+    Object.keys(grupos).sort().forEach(mes => {
+      const [y, m] = mes.split('-');
+      const mesNombre = MESES[parseInt(m)-1] + ' ' + y;
+      html += `<div style="font-size:14px;font-weight:700;color:var(--primary);margin:16px 0 8px;border-bottom:2px solid var(--primary);padding-bottom:4px;">📅 ${mesNombre.toUpperCase()}</div>`;
+      html += '<div class="reservas-list">';
+      grupos[mes].forEach(r => { html += renderCard(r); });
+      html += '</div>';
+    });
   }
 
   el.innerHTML = html;
