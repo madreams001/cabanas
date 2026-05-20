@@ -64,16 +64,9 @@ function tarifaCabaña(nombreBuscado) {
 
 function setVista(v) {
   vistaListado = v;
-  const lista = document.getElementById('listaReservas');
-  if (v === 'grid') {
-    lista.classList.add('vista-grid');
-    document.getElementById('btnVistaGrid').classList.add('activo');
-    document.getElementById('btnVistaLista').classList.remove('activo');
-  } else {
-    lista.classList.remove('vista-grid');
-    document.getElementById('btnVistaLista').classList.add('activo');
-    document.getElementById('btnVistaGrid').classList.remove('activo');
-  }
+  document.getElementById('btnVistaGrid').classList.toggle('activo', v === 'grid');
+  document.getElementById('btnVistaLista').classList.toggle('activo', v === 'lista');
+  renderListado();
 }
 
 function actualizarSelectoresCabaña() {

@@ -39,6 +39,7 @@
 - **Los cambios se hacen de a uno** para facilitar pruebas (a menos que Cromi pida varios)
 - **Cada cambio se commitea a git** con mensaje descriptivo
 - **Cromi decide cuándo subir** a producción (GitHub Pages / GAS)
+- **SIEMPRE indicar qué archivos se modificaron** antes de proceder, con una tabla clara
 
 ### Dónde están los archivos
 - Directorio de trabajo: `C:\Users\Cromi\curso-opencode\proyectos\cabanas\`
