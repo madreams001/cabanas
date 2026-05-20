@@ -491,6 +491,15 @@ function checkConflict() {
   el.classList.remove('show');
   document.getElementById('alertError').classList.remove('show');
 
+  // Validar: Ocupada solo puede ser hoy o fecha pasada
+  if (estado === 'Ocupada' && ent) {
+    const hoy = ds(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+    if (ent > hoy) {
+      document.getElementById('alertError').innerHTML = '❌ No se puede marcar como <strong>Ocupada</strong> con fecha de entrada futura. La entrada debe ser hoy o una fecha pasada.';
+      document.getElementById('alertError').classList.add('show');
+    }
+  }
+
   const badge = document.getElementById('estadoBadge');
   if (estado === 'Ocupada') {
     badge.style.background='#b80000'; badge.style.color='white'; badge.textContent='🔴 Ocupada';
@@ -576,12 +585,14 @@ async function guardarReserva() {
   if (!estado) { showErr('Elegí el estado de la reserva (ocupada / confirmada / no confirmada).'); return; }
   if (!nombre) { showErr('Ingresá el nombre y apellido del cliente.'); return; }
   if (!dni)    { showErr('Ingresá el DNI o CUIT.'); return; }
-  if (!ent)    { showErr('Seleccioná la fecha de entrada.'); return; }
-  if (!sal)    { showErr('Seleccioná la fecha de salida.'); return; }
+    if (!ent)    { showErr('Seleccioná la fecha de entrada.'); return; }
+    if (!sal)    { showErr('Seleccioná la fecha de salida.'); return; }
+    if (estado === 'Ocupada' && ent > hoy) { showErr('No se puede editar como Ocupada con fecha de entrada futura.'); return; }
   if (sal<=ent){ showErr('La fecha de salida debe ser posterior a la entrada.'); return; }
 
   const hoy = ds(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
   if (ent < hoy) { showErr('La fecha de entrada no puede ser anterior al día de hoy (' + hoy + ').'); return; }
+  if (estado === 'Ocupada' && ent > hoy) { showErr('No se puede marcar como Ocupada con fecha de entrada futura. Usá Confirmada o No confirmada.'); return; }
 
   const conflictos = reservas.filter(r =>
     r.Cabaña === cab &&
@@ -662,6 +673,7 @@ async function guardarReservaConEdicion() {
     const dni    = document.getElementById('fDni').value.trim();
     const ent    = document.getElementById('fEntrada').value;
     const sal    = document.getElementById('fSalida').value;
+    const hoy = ds(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
     hideAlerts();
     if (!cab)    { showErr('Seleccioná la cabaña.'); return; }
     if (!tipo)   { showErr('Elegí Particular o Empresa.'); return; }
