@@ -1582,6 +1582,9 @@ let syncInterval = null;
 (async function init() {
   document.getElementById('connectionBanner').style.display = 'block';
   
+  // Restaurar sesión de admin desde localStorage
+  adminSession = localStorage.getItem('admin_session') === 'true';
+  
   try {
     const url = API_URL + '?token=' + encodeURIComponent(ACCESS_TOKEN) + '&t=' + Date.now();
     const res = await fetch(url, { method: 'GET', redirect: 'follow' });
@@ -1591,6 +1594,7 @@ let syncInterval = null;
       localStorage.removeItem('reservas_cache');
       document.getElementById('connectionBanner').style.display = 'none';
       
+      // Admin entra directo sin pantalla azul
       if (adminSession) {
         document.getElementById('adminMaintBanner').style.display = 'block';
         iniciarIdentidad();
@@ -1599,12 +1603,12 @@ let syncInterval = null;
         return;
       }
       
-      const clave = prompt('️ El sistema está en MANTENIMIENTO.\n\nIngresá la clave de administrador para trabajar:');
+      // No admin: pedir clave
+      const clave = prompt('🔧 El sistema está en MANTENIMIENTO.\n\nIngresá la clave de administrador para trabajar:');
       
       if (clave === ADMIN_KEY) {
         adminSession = true;
         localStorage.setItem('admin_session', 'true');
-        localStorage.removeItem('cabanas_maint');
         document.getElementById('adminMaintBanner').style.display = 'block';
         iniciarIdentidad();
         cargarReservas();
@@ -1615,15 +1619,19 @@ let syncInterval = null;
       return;
     }
     
+    // Si NO hay mantenimiento, limpiar sesión admin
     if (data.ok && !data.mantenimiento) {
       localStorage.removeItem('cabanas_maint');
-      adminSession = false;
-      localStorage.removeItem('admin_session');
+      if (adminSession) {
+        adminSession = false;
+        localStorage.removeItem('admin_session');
+      }
       document.getElementById('adminMaintBanner').style.display = 'none';
     }
   } catch (e) {
     console.error('Error verificando mantenimiento global:', e);
     document.getElementById('connectionBanner').style.display = 'none';
+    // Si no hay conexión pero sos admin, entrá igual
     if (adminSession) {
       document.getElementById('adminMaintBanner').style.display = 'block';
       iniciarIdentidad();
