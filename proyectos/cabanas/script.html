@@ -758,17 +758,23 @@ function renderListado() {
 
   // Ordenar según selección
   lista.sort((a,b) => {
-    if (!filtOrden || filtOrden === 'mes') {
-      // Default: fecha ascendente
-      if (a.Entrada < b.Entrada) return -1;
-      if (a.Entrada > b.Entrada) return 1;
-      return 0;
+    const numA = parseInt((a.Cabaña||'').replace(/\D/g,'')) || 0;
+    const numB = parseInt((b.Cabaña||'').replace(/\D/g,'')) || 0;
+
+    if (!filtOrden) {
+      // Default: Cabaña ↑ luego Fecha ↑
+      if (numA !== numB) return numA - numB;
+      return a.Entrada < b.Entrada ? -1 : 1;
+    }
+    if (filtOrden === 'mes') {
+      // Dentro del mes, ordenar por fecha
+      return a.Entrada < b.Entrada ? -1 : a.Entrada > b.Entrada ? 1 : 0;
     }
     switch(filtOrden) {
       case 'cab-asc':
-        return (a.Cabaña||'').localeCompare(b.Cabaña||'');
+        return numA - numB;
       case 'cab-desc':
-        return (b.Cabaña||'').localeCompare(a.Cabaña||'');
+        return numB - numA;
       case 'nombre-asc':
         return (a.Nombre||'').localeCompare(b.Nombre||'');
       case 'nombre-desc':
@@ -802,7 +808,7 @@ function renderListado() {
 
   // Renderizar
   let html = '';
-  const agrupar = !filtOrden || filtOrden === 'mes';
+  const agrupar = filtOrden === 'mes';
   const esGrilla = vistaListado === 'grid';
 
   if (agrupar) {
