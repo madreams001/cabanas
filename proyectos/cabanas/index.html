@@ -577,6 +577,15 @@ body {
 .reservas-list.vista-grid .rc-obs  { font-size: 11px; padding: 4px 8px; }
 .reservas-list.vista-grid .rc-footer { font-size: 10px; }
 .reservas-list.vista-grid .rc-delete { font-size: 11px; padding: 4px 8px; }
+.mes-header-grid {
+  grid-column: 1 / -1;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 12px 0 6px;
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 4px;
+}
 
 @media (max-width: 900px) {
   .reservas-list.vista-grid { grid-template-columns: repeat(2, 1fr); }
@@ -2089,6 +2098,7 @@ function renderListado() {
   // Renderizar
   let html = '';
   const agrupar = !filtOrden || filtOrden === 'mes';
+  const esGrilla = vistaListado === 'grid';
 
   if (agrupar) {
     // Agrupar por mes
@@ -2099,17 +2109,30 @@ function renderListado() {
       grupos[mes].push(r);
     });
 
-    Object.keys(grupos).sort().forEach(mes => {
-      const [y, m] = mes.split('-');
-      const mesNombre = MESES[parseInt(m)-1] + ' ' + y;
-      html += `<div style="font-size:14px;font-weight:700;color:var(--primary);margin:16px 0 8px;border-bottom:2px solid var(--primary);padding-bottom:4px;">📅 ${mesNombre.toUpperCase()}</div>`;
-      html += '<div class="reservas-list">';
-      grupos[mes].forEach(r => { html += renderCard(r); });
+    if (esGrilla) {
+      // En grilla: un solo contenedor grid, headers ocupan todo el ancho
+      html += '<div class="reservas-list vista-grid">';
+      Object.keys(grupos).sort().forEach(mes => {
+        const [y, m] = mes.split('-');
+        const mesNombre = MESES[parseInt(m)-1] + ' ' + y;
+        html += `<div class="mes-header-grid">📅 ${mesNombre.toUpperCase()}</div>`;
+        grupos[mes].forEach(r => { html += renderCard(r); });
+      });
       html += '</div>';
-    });
+    } else {
+      // En lista: contenedores separados por mes
+      Object.keys(grupos).sort().forEach(mes => {
+        const [y, m] = mes.split('-');
+        const mesNombre = MESES[parseInt(m)-1] + ' ' + y;
+        html += `<div style="font-size:14px;font-weight:700;color:var(--primary);margin:16px 0 8px;border-bottom:2px solid var(--primary);padding-bottom:4px;">📅 ${mesNombre.toUpperCase()}</div>`;
+        html += '<div class="reservas-list">';
+        grupos[mes].forEach(r => { html += renderCard(r); });
+        html += '</div>';
+      });
+    }
   } else {
     // Lista plana sin agrupar
-    html += '<div class="reservas-list">';
+    html += `<div class="reservas-list${esGrilla?' vista-grid':''}">`;
     lista.forEach(r => { html += renderCard(r); });
     html += '</div>';
   }
