@@ -1,3 +1,18 @@
+        <option>Adriana</option><option>Federico</option><option>Jose</option>
+      </select>
+      <input type="month" id="filtMes" onchange="renderListado()" title="Filtrar por mes">
+      <select id="filtOrden" onchange="renderListado()" title="Ordenar por" style="flex:0 0 auto;min-width:140px;border-left:3px solid var(--primary);">
+        <option value="">⇅ Ordenar por…</option>
+        <option value="cab-asc">🏕️ Cabaña ↑</option>
+        <option value="cab-desc">🏕️ Cabaña ↓</option>
+        <option value="nombre-asc">👤 Nombre A-Z</option>
+        <option value="nombre-desc">👤 Nombre Z-A</option>
+        <option value="socio-asc">👥 Socio A-Z</option>
+        <option value="fecha-asc">📅 Fecha ↑ (más antigua)</option>
+        <option value="fecha-desc">📅 Fecha ↓ (más reciente)</option>
+      </select>
+    </div>
+    <div class="reservas-list" id="listaReservas"></div>
   </div>
 
   <!-- Finanzas -->
@@ -314,6 +329,32 @@ function ds(y,m,d) {
   return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
 }
 
+function renderMesesNav() {
+  const nav = document.getElementById('calMonthsNav');
+  if (!nav) return;
+  
+  // Detectar qué meses tienen reservas
+  const mesesConReservas = new Set();
+  reservas.forEach(r => {
+    if (r.Entrada) {
+      const m = new Date(r.Entrada + 'T12:00:00').getMonth();
+      mesesConReservas.add(m);
+    }
+  });
+
+  let html = '';
+  MESES.forEach((nombre, i) => {
+    const tiene = mesesConReservas.has(i);
+    const activo = (i === calMonth);
+    if (tiene || activo) {
+      const cls = 'cal-month-dot' + (activo ? ' active' : '') + (tiene ? ' has-reservas' : '');
+      const corto = nombre.substring(0, 3).toUpperCase();
+      html += `<button class="${cls}" onclick="calMonth=${i};renderCalendario();renderDisponibilidad();">${corto}</button>`;
+    }
+  });
+  nav.innerHTML = html;
+}
+
 function fmtFecha(s) {
   if (!s || s.length < 10) return s||'—';
   const [y,m,d] = s.substring(0,10).split('-');
@@ -322,6 +363,7 @@ function fmtFecha(s) {
 
 function renderCalendario() {
   document.getElementById('calTitle').textContent = MESES[calMonth] + ' ' + calYear;
+  renderMesesNav();
   const dim   = new Date(calYear, calMonth+1, 0).getDate();
   const today = new Date();
   const todayS= ds(today.getFullYear(), today.getMonth(), today.getDate());

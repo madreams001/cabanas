@@ -288,6 +288,20 @@ body {
   transition: background 0.1s;
 }
 .btn-today:hover { background: var(--primary); color: white; }
+.cal-months-nav {
+  display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+  margin: 8px 0 12px; padding: 6px 10px;
+  background: var(--surface2); border-radius: var(--r-sm);
+}
+.cal-month-dot {
+  padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s; border: none;
+  background: transparent; color: var(--text-muted);
+}
+.cal-month-dot:hover { background: var(--surface3); color: var(--text); }
+.cal-month-dot.active { background: var(--primary); color: white; font-weight: 700; }
+.cal-month-dot.has-reservas::after { content: ' •'; color: var(--warning); }
+.cal-month-dot.active.has-reservas::after { color: white; }
 
 .cal-wrap {
   overflow-x: auto;
@@ -1079,6 +1093,7 @@ body {
       </div>
       <button class="btn-today" onclick="goToday()">Hoy</button>
     </div>
+    <div class="cal-months-nav" id="calMonthsNav"></div>
 
     <div class="disp-panel" id="dispPanel"></div>
     <div class="cal-wrap">
@@ -1609,6 +1624,32 @@ function ds(y,m,d) {
   return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
 }
 
+function renderMesesNav() {
+  const nav = document.getElementById('calMonthsNav');
+  if (!nav) return;
+  
+  // Detectar qué meses tienen reservas
+  const mesesConReservas = new Set();
+  reservas.forEach(r => {
+    if (r.Entrada) {
+      const m = new Date(r.Entrada + 'T12:00:00').getMonth();
+      mesesConReservas.add(m);
+    }
+  });
+
+  let html = '';
+  MESES.forEach((nombre, i) => {
+    const tiene = mesesConReservas.has(i);
+    const activo = (i === calMonth);
+    if (tiene || activo) {
+      const cls = 'cal-month-dot' + (activo ? ' active' : '') + (tiene ? ' has-reservas' : '');
+      const corto = nombre.substring(0, 3).toUpperCase();
+      html += `<button class="${cls}" onclick="calMonth=${i};renderCalendario();renderDisponibilidad();">${corto}</button>`;
+    }
+  });
+  nav.innerHTML = html;
+}
+
 function fmtFecha(s) {
   if (!s || s.length < 10) return s||'—';
   const [y,m,d] = s.substring(0,10).split('-');
@@ -1617,6 +1658,7 @@ function fmtFecha(s) {
 
 function renderCalendario() {
   document.getElementById('calTitle').textContent = MESES[calMonth] + ' ' + calYear;
+  renderMesesNav();
   const dim   = new Date(calYear, calMonth+1, 0).getDate();
   const today = new Date();
   const todayS= ds(today.getFullYear(), today.getMonth(), today.getDate());
