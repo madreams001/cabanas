@@ -1735,7 +1735,15 @@ function renderCalendario() {
       if (isToday) cls += ' day-today';
       const isPast = !r && dStr < todayS;
       const esTransicion = cls.startsWith('day-trans-');
-      const click = (isPast || (r && !esTransicion)) ? '' : `onclick="quickBook('${cab}','${dStr}')"`;
+      
+      // Clic: si hay reserva → editar. Si es libre → nueva reserva
+      let click = '';
+      if (r && !esTransicion) {
+        click = `onclick="editarReserva('${r.ID}')"`;
+        title = `[${r.Estado||'Confirmada'}] ${r.Nombre} (${r.Entrada} → ${r.Salida}) — Clic para editar`;
+      } else if (!isPast) {
+        click = `onclick="quickBook('${cab}','${dStr}')"`;
+      }
       html += `<td class="${cls}" title="${title||''}" ${click}>${inner}</td>`;
     }
     html += '</tr>';
