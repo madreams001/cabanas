@@ -723,12 +723,11 @@ function renderListado() {
   const filtBuscar = (document.getElementById('filtBuscar')?.value||'').toLowerCase().trim();
 
   let lista = [...reservas].sort((a,b) => {
-    const numA = parseInt((a.Cabaña||'').replace(/\D/g,'')) || 0;
-    const numB = parseInt((b.Cabaña||'').replace(/\D/g,'')) || 0;
-    if (numA !== numB) return numA - numB;
     if (a.Entrada < b.Entrada) return -1;
     if (a.Entrada > b.Entrada) return 1;
-    return 0;
+    const numA = parseInt((a.Cabaña||'').replace(/\D/g,'')) || 0;
+    const numB = parseInt((b.Cabaña||'').replace(/\D/g,'')) || 0;
+    return numA - numB;
   });
 
   if (filtCab)    lista = lista.filter(r=>r.Cabaña===filtCab);
@@ -757,7 +756,22 @@ function renderListado() {
     return;
   }
 
-  el.innerHTML = lista.map(r => {
+  // Agrupar por mes
+  const grupos = {};
+  lista.forEach(r => {
+    const mes = (r.Entrada||'').substring(0,7);
+    if (!grupos[mes]) grupos[mes] = [];
+    grupos[mes].push(r);
+  });
+
+  let html = '';
+  Object.keys(grupos).sort().forEach(mes => {
+    const [y, m] = mes.split('-');
+    const mesNombre = MESES[parseInt(m)-1] + ' ' + y;
+    html += `<div style="font-size:14px;font-weight:700;color:var(--primary);margin:16px 0 8px;border-bottom:2px solid var(--primary);padding-bottom:4px;">📅 ${mesNombre.toUpperCase()}</div>`;
+    html += '<div class="reservas-list">';
+    
+    grupos[mes].forEach(r => {
     const noches = r.Noches || Math.round((new Date(r.Salida)-new Date(r.Entrada))/864e5);
     const monto  = r.Monto ? '$'+Number(r.Monto).toLocaleString('es-AR') : '';
     const entradaFmt = fmtFecha(r.Entrada);
@@ -786,11 +800,11 @@ function renderListado() {
       ? r.Cargada.replace(/GMT.*/,'').trim()
       : '—';
 
-    return `
+    html += `
     <div class="reserva-card">
       <div class="rc-row1">
         <div>
-          <div class="rc-name">${r.Nombre||'—'}</div>
+          <div class="rc-name">🏕️ ${r.Cabaña} — ${r.Nombre||'—'}</div>
           <div class="rc-sub">DNI/CUIT: ${r.DNI_CUIT||'—'}${r.Telefono?' · '+r.Telefono:''}${r.Email?' · '+r.Email:''}</div>
           ${r.Direccion?'<div class="rc-sub">'+r.Direccion+'</div>':''}
         </div>
@@ -800,7 +814,6 @@ function renderListado() {
         </div>
       </div>
       <div class="rc-chips">
-        <span class="chip chip-gray">🏕️ ${r.Cabaña}</span>
         ${estadoBadge}
         <span class="chip ${r.Tipo==='Empresa'?'chip-amber':'chip-blue'}">${r.Tipo||'—'}</span>
         <span class="chip chip-green">🌙 ${noches} noche${noches!==1?'s':''}</span>
@@ -813,7 +826,10 @@ function renderListado() {
       ${r.Observaciones?`<div class="rc-obs">📝 ${r.Observaciones}</div>`:''}
       <div class="rc-footer">Cargada: ${cargadaFmt}</div>
     </div>`;
-  }).join('');
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html;
 }
 
 // ═══════════════════════════════════════════════════════════
