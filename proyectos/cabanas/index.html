@@ -1437,7 +1437,7 @@ function normalizarFecha(val) {
 }
 
 // ═══════════════════════════════════════════════════════════
-//  API - CARGAR RESERVAS
+//  API - CARGAR RESERVAS (Optimizado: 1 solo fetch)
 // ═══════════════════════════════════════════════════════════
 async function cargarReservas() {
   if (!IS_CONFIGURED) {
@@ -1450,20 +1450,6 @@ async function cargarReservas() {
     return;
   }
   
-  try {
-    const url = API_URL + '?token=' + encodeURIComponent(ACCESS_TOKEN) + '&t=' + Date.now();
-    const res = await fetch(url, { method: 'GET', redirect: 'follow' });
-    const data = await res.json();
-    
-    if (data.ok && data.mantenimiento && !adminSession) {
-      localStorage.removeItem('reservas_cache');
-      activarMantenimiento(false);
-      return;
-    }
-  } catch (e) {
-    console.error('Error verificando mantenimiento:', e);
-  }
-
   const cacheLocal = localStorage.getItem('reservas_cache');
   if (cacheLocal) {
     try {
@@ -1483,6 +1469,11 @@ async function cargarReservas() {
     if (data.ok) {
       if (data.mantenimiento && adminSession && (!data.reservas || data.reservas.length === 0)) {
         setSyncStatus('ok', 'Modo mantenimiento · datos locales');
+        return;
+      }
+      if (data.mantenimiento && !adminSession) {
+        localStorage.removeItem('reservas_cache');
+        activarMantenimiento(false);
         return;
       }
 
@@ -1618,6 +1609,19 @@ function renderCalendario() {
   const today = new Date();
   const todayS= ds(today.getFullYear(), today.getMonth(), today.getDate());
 
+  // Pre-indexar reservas por cabaña+fecha para lookup O(1)
+  const resMap = {};
+  reservas.forEach(r => {
+    let d = new Date(r.Entrada + 'T12:00:00');
+    const end = new Date(r.Salida + 'T12:00:00');
+    while (d < end) {
+      const key = r.Cabaña + '|' + ds(d.getFullYear(), d.getMonth(), d.getDate());
+      if (!resMap[key]) resMap[key] = [];
+      resMap[key].push(r);
+      d.setDate(d.getDate() + 1);
+    }
+  });
+
   let html = '<thead><tr><th class="ch-cab">Cabaña</th>';
   for (let d=1; d<=dim; d++) {
     const dow = new Date(calYear, calMonth, d).getDay();
@@ -1633,7 +1637,9 @@ function renderCalendario() {
       const dStr   = ds(calYear, calMonth, d);
       const dow    = new Date(calYear, calMonth, d).getDay();
       const isWE   = dow===0||dow===6;
-      const r      = getReservaEn(cab, dStr);
+      const key = cab + '|' + dStr;
+      const rList = resMap[key];
+      const r = rList ? rList[0] : null;
       const isToday= dStr===todayS;
       let cls='', title='', inner='';
 
@@ -2866,6 +2872,8 @@ if (savedUser) {
   modal.style.visibility = 'hidden';
 }
 
+let syncInterval = null;
+
 (async function init() {
   document.getElementById('connectionBanner').style.display = 'block';
   
@@ -2882,8 +2890,7 @@ if (savedUser) {
         document.getElementById('adminMaintBanner').style.display = 'block';
         iniciarIdentidad();
         cargarReservas();
-        setInterval(cargarReservas, 60000);
-        setInterval(renderDisponibilidad, 60000);
+        if (!syncInterval) syncInterval = setInterval(() => { cargarReservas(); renderDisponibilidad(); }, 60000);
         return;
       }
       
@@ -2896,8 +2903,7 @@ if (savedUser) {
         document.getElementById('adminMaintBanner').style.display = 'block';
         iniciarIdentidad();
         cargarReservas();
-        setInterval(cargarReservas, 60000);
-        setInterval(renderDisponibilidad, 60000);
+        if (!syncInterval) syncInterval = setInterval(() => { cargarReservas(); renderDisponibilidad(); }, 60000);
       } else {
         activarMantenimiento(false);
       }
@@ -2917,8 +2923,7 @@ if (savedUser) {
       document.getElementById('adminMaintBanner').style.display = 'block';
       iniciarIdentidad();
       cargarReservas();
-      setInterval(cargarReservas, 60000);
-      setInterval(renderDisponibilidad, 60000);
+      if (!syncInterval) syncInterval = setInterval(() => { cargarReservas(); renderDisponibilidad(); }, 60000);
       return;
     }
   }
@@ -2930,8 +2935,7 @@ if (savedUser) {
 
   iniciarIdentidad();
   cargarReservas();
-  setInterval(cargarReservas, 60000);
-  setInterval(renderDisponibilidad, 60000);
+  if (!syncInterval) syncInterval = setInterval(() => { cargarReservas(); renderDisponibilidad(); }, 60000);
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
