@@ -288,18 +288,17 @@ body {
   transition: background 0.1s;
 }
 .btn-today:hover { background: var(--primary); color: white; }
-.cal-months-nav {
-  display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
-  margin: 8px 0 12px; padding: 6px 10px;
-  background: var(--surface2); border-radius: var(--r-sm);
+.cal-months-nav-inline {
+  display: flex; flex-wrap: wrap; gap: 4px; justify-content: center;
+  max-width: 280px;
 }
 .cal-month-dot {
-  padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: 500;
+  padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;
   cursor: pointer; transition: all 0.15s; border: none;
-  background: transparent; color: var(--text-muted);
+  background: var(--surface2); color: var(--text-muted);
 }
 .cal-month-dot:hover { background: var(--surface3); color: var(--text); }
-.cal-month-dot.active { background: var(--primary); color: white; font-weight: 700; }
+.cal-month-dot.active { background: var(--primary); color: white; }
 .cal-month-dot.has-reservas::after { content: ' •'; color: var(--warning); }
 .cal-month-dot.active.has-reservas::after { color: white; }
 
@@ -1091,9 +1090,11 @@ body {
         <span class="cal-month" id="calTitle"></span>
         <button class="btn-icon" onclick="changeMonth(1)" title="Mes siguiente">▶</button>
       </div>
-      <button class="btn-today" onclick="goToday()">Hoy</button>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="cal-months-nav-inline" id="calMonthsNav"></div>
+        <button class="btn-today" onclick="goToday()">Hoy</button>
+      </div>
     </div>
-    <div class="cal-months-nav" id="calMonthsNav"></div>
 
     <div class="disp-panel" id="dispPanel"></div>
     <div class="cal-wrap">
