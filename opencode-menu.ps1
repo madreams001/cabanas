@@ -1,8 +1,9 @@
 # Opencode Menu - Se ejecuta DENTRO de Warp
 # Muestra sesiones y lanza opencode
 
-$ErrorActionPreference = 'SilentlyContinue'
+[Console]::InputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
 
 $WORK_DIR = "C:\Users\Cromi\curso-opencode"
 Set-Location $WORK_DIR
