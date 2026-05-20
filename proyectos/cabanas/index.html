@@ -1271,6 +1271,17 @@ body {
         <option>Adriana</option><option>Federico</option><option>Jose</option>
       </select>
       <input type="month" id="filtMes" onchange="renderListado()" title="Filtrar por mes">
+      <select id="filtOrden" onchange="renderListado()" title="Ordenar por" style="flex:0 0 auto;min-width:140px;border-left:3px solid var(--primary);">
+        <option value="">⇅ Ordenar por…</option>
+        <option value="cab-asc">🏕️ Cabaña ↑</option>
+        <option value="cab-desc">🏕️ Cabaña ↓</option>
+        <option value="nombre-asc">👤 Nombre A-Z</option>
+        <option value="nombre-desc">👤 Nombre Z-A</option>
+        <option value="socio-asc">👥 Socio A-Z</option>
+        <option value="fecha-asc">📅 Fecha ↑ (más antigua)</option>
+        <option value="fecha-desc">📅 Fecha ↓ (más reciente)</option>
+        <option value="mes">🗓️ Agrupar por mes</option>
+      </select>
     </div>
     <div class="reservas-list" id="listaReservas"></div>
   </div>
@@ -2015,16 +2026,12 @@ function renderListado() {
   const filtTipo   = document.getElementById('filtTipo').value;
   const filtSocio  = document.getElementById('filtSocio').value;
   const filtMes    = document.getElementById('filtMes').value;
+  const filtOrden  = document.getElementById('filtOrden').value;
   const filtBuscar = (document.getElementById('filtBuscar')?.value||'').toLowerCase().trim();
 
-  let lista = [...reservas].sort((a,b) => {
-    if (a.Entrada < b.Entrada) return -1;
-    if (a.Entrada > b.Entrada) return 1;
-    const numA = parseInt((a.Cabaña||'').replace(/\D/g,'')) || 0;
-    const numB = parseInt((b.Cabaña||'').replace(/\D/g,'')) || 0;
-    return numA - numB;
-  });
+  let lista = [...reservas];
 
+  // Aplicar filtros primero
   if (filtCab)    lista = lista.filter(r=>r.Cabaña===filtCab);
   if (filtEstado) lista = lista.filter(r=>r.Estado===filtEstado);
   if (filtTipo)   lista = lista.filter(r=>r.Tipo===filtTipo);
@@ -2035,10 +2042,38 @@ function renderListado() {
     (r.DNI_CUIT||'').toLowerCase().includes(filtBuscar)
   );
 
+  // Ordenar según selección
+  lista.sort((a,b) => {
+    if (!filtOrden || filtOrden === 'mes') {
+      // Default: fecha ascendente
+      if (a.Entrada < b.Entrada) return -1;
+      if (a.Entrada > b.Entrada) return 1;
+      return 0;
+    }
+    switch(filtOrden) {
+      case 'cab-asc':
+        return (a.Cabaña||'').localeCompare(b.Cabaña||'');
+      case 'cab-desc':
+        return (b.Cabaña||'').localeCompare(a.Cabaña||'');
+      case 'nombre-asc':
+        return (a.Nombre||'').localeCompare(b.Nombre||'');
+      case 'nombre-desc':
+        return (b.Nombre||'').localeCompare(a.Nombre||'');
+      case 'socio-asc':
+        return (a.Socio||'').localeCompare(b.Socio||'');
+      case 'fecha-asc':
+        return a.Entrada < b.Entrada ? -1 : a.Entrada > b.Entrada ? 1 : 0;
+      case 'fecha-desc':
+        return b.Entrada < a.Entrada ? -1 : b.Entrada > a.Entrada ? 1 : 0;
+      default:
+        return 0;
+    }
+  });
+
   const listaKey = lista.map(r=>r.ID).join(',');
-  if (renderListado._lastKey === listaKey && renderListado._lastFilters === JSON.stringify({filtCab, filtEstado, filtTipo, filtSocio, filtMes, filtBuscar})) return;
+  if (renderListado._lastKey === listaKey && renderListado._lastFilters === JSON.stringify({filtCab, filtEstado, filtTipo, filtSocio, filtMes, filtBuscar, filtOrden})) return;
   renderListado._lastKey = listaKey;
-  renderListado._lastFilters = JSON.stringify({filtCab, filtEstado, filtTipo, filtSocio, filtMes, filtBuscar});
+  renderListado._lastFilters = JSON.stringify({filtCab, filtEstado, filtTipo, filtSocio, filtMes, filtBuscar, filtOrden});
 
   const el = document.getElementById('listaReservas');
   if (lista.length===0) {
@@ -2051,80 +2086,92 @@ function renderListado() {
     return;
   }
 
-  // Agrupar por mes
-  const grupos = {};
-  lista.forEach(r => {
-    const mes = (r.Entrada||'').substring(0,7);
-    if (!grupos[mes]) grupos[mes] = [];
-    grupos[mes].push(r);
-  });
-
+  // Renderizar
   let html = '';
-  Object.keys(grupos).sort().forEach(mes => {
-    const [y, m] = mes.split('-');
-    const mesNombre = MESES[parseInt(m)-1] + ' ' + y;
-    html += `<div style="font-size:14px;font-weight:700;color:var(--primary);margin:16px 0 8px;border-bottom:2px solid var(--primary);padding-bottom:4px;">📅 ${mesNombre.toUpperCase()}</div>`;
-    html += '<div class="reservas-list">';
-    
-    grupos[mes].forEach(r => {
-    const noches = r.Noches || Math.round((new Date(r.Salida)-new Date(r.Entrada))/864e5);
-    const monto  = r.Monto ? '$'+Number(r.Monto).toLocaleString('es-AR') : '';
-    const entradaFmt = fmtFecha(r.Entrada);
-    const salidaFmt  = fmtFecha(r.Salida);
+  const agrupar = !filtOrden || filtOrden === 'mes';
 
-    const estadoBadge = r.Estado==='Ocupada'
-      ? '<span class="chip" style="background:#b80000;color:white;border:1px solid #900000;">🔴 Ocupada</span>'
-      : r.Estado==='Confirmada'
-      ? '<span class="chip" style="background:#FF8C00;color:white;border:1px solid #cc6e00;">🟠 Confirmada</span>'
-      : r.Estado==='No confirmada'
-      ? '<span class="chip" style="background:#FAD201;color:#4a3800;border:1px solid #c8a200;">🟡 No confirmada</span>'
-      : '';
-
-    const esDueño = !!(usuarioActual &&
-      usuarioActual.trim().toLowerCase() === (r.Socio||'').trim().toLowerCase());
-
-    const btnEliminar = esDueño
-      ? `<button class="rc-delete" onclick="eliminar('${r.ID}','${(r.Nombre||'').replace(/'/g,'')}','${(r.Socio||'').replace(/'/g,'')}')">🗑️</button>`
-      : `<button class="rc-delete" disabled title="Solo ${r.Socio||'quien la cargó'} puede eliminar esta reserva." style="opacity:0.35;cursor:not-allowed;">🔒</button>`;
-
-    const btnEditar = esDueño
-      ? `<button class="btn-secondary" onclick="editarReserva('${r.ID}')" style="font-size:12px;padding:5px 10px;">✏️ Editar</button>`
-      : `<button class="btn-secondary" disabled title="Solo ${r.Socio||'quien la cargó'} puede editar esta reserva." style="font-size:12px;padding:5px 10px;opacity:0.35;cursor:not-allowed;">✏️ Editar</button>`;
-
-    const cargadaFmt = r.Cargada
-      ? r.Cargada.replace(/GMT.*/,'').trim()
-      : '—';
-
-    html += `
-    <div class="reserva-card">
-      <div class="rc-row1">
-        <div>
-          <div class="rc-name">🏕️ ${r.Cabaña} — ${r.Nombre||'—'}</div>
-          <div class="rc-sub">DNI/CUIT: ${r.DNI_CUIT||'—'}${r.Telefono?' · '+r.Telefono:''}${r.Email?' · '+r.Email:''}</div>
-          ${r.Direccion?'<div class="rc-sub">'+r.Direccion+'</div>':''}
-        </div>
-        <div style="display:flex;gap:6px;align-items:flex-start;">
-          ${btnEditar}
-          ${btnEliminar}
-        </div>
-      </div>
-      <div class="rc-chips">
-        ${estadoBadge}
-        <span class="chip ${r.Tipo==='Empresa'?'chip-amber':'chip-blue'}">${r.Tipo||'—'}</span>
-        <span class="chip chip-green">🌙 ${noches} noche${noches!==1?'s':''}</span>
-        ${monto?`<span class="chip chip-green">${monto}</span>`:''}
-        ${r.Pago?`<span class="chip chip-gray">${r.Pago}</span>`:''}
-        ${r.Socio?`<span class="chip chip-gray">👤 ${r.Socio}</span>`:''}
-      </div>
-      <div class="rc-sub" style="margin-top:8px;">📅 ${entradaFmt} → ${salidaFmt}</div>
-      ${r.NotaInterna&&esDueño?`<div class="rc-obs" style="border-left-color:#FF8C00;background:var(--warning-bg);margin-top:8px;" title="Nota interna — solo visible para vos">🔒 ${r.NotaInterna}</div>`:''}
-      ${r.Observaciones?`<div class="rc-obs">📝 ${r.Observaciones}</div>`:''}
-      <div class="rc-footer">Cargada: ${cargadaFmt}</div>
-    </div>`;
+  if (agrupar) {
+    // Agrupar por mes
+    const grupos = {};
+    lista.forEach(r => {
+      const mes = (r.Entrada||'').substring(0,7);
+      if (!grupos[mes]) grupos[mes] = [];
+      grupos[mes].push(r);
     });
+
+    Object.keys(grupos).sort().forEach(mes => {
+      const [y, m] = mes.split('-');
+      const mesNombre = MESES[parseInt(m)-1] + ' ' + y;
+      html += `<div style="font-size:14px;font-weight:700;color:var(--primary);margin:16px 0 8px;border-bottom:2px solid var(--primary);padding-bottom:4px;">📅 ${mesNombre.toUpperCase()}</div>`;
+      html += '<div class="reservas-list">';
+      grupos[mes].forEach(r => { html += renderCard(r); });
+      html += '</div>';
+    });
+  } else {
+    // Lista plana sin agrupar
+    html += '<div class="reservas-list">';
+    lista.forEach(r => { html += renderCard(r); });
     html += '</div>';
-  });
+  }
+
   el.innerHTML = html;
+}
+
+function renderCard(r) {
+  const noches = r.Noches || Math.round((new Date(r.Salida)-new Date(r.Entrada))/864e5);
+  const monto  = r.Monto ? '$'+Number(r.Monto).toLocaleString('es-AR') : '';
+  const entradaFmt = fmtFecha(r.Entrada);
+  const salidaFmt  = fmtFecha(r.Salida);
+
+  const estadoBadge = r.Estado==='Ocupada'
+    ? '<span class="chip" style="background:#b80000;color:white;border:1px solid #900000;">🔴 Ocupada</span>'
+    : r.Estado==='Confirmada'
+    ? '<span class="chip" style="background:#FF8C00;color:white;border:1px solid #cc6e00;">🟠 Confirmada</span>'
+    : r.Estado==='No confirmada'
+    ? '<span class="chip" style="background:#FAD201;color:#4a3800;border:1px solid #c8a200;">🟡 No confirmada</span>'
+    : '';
+
+  const esDueño = !!(usuarioActual &&
+    usuarioActual.trim().toLowerCase() === (r.Socio||'').trim().toLowerCase());
+
+  const btnEliminar = esDueño
+    ? `<button class="rc-delete" onclick="eliminar('${r.ID}','${(r.Nombre||'').replace(/'/g,'')}','${(r.Socio||'').replace(/'/g,'')}')">🗑️</button>`
+    : `<button class="rc-delete" disabled title="Solo ${r.Socio||'quien la cargó'} puede eliminar esta reserva." style="opacity:0.35;cursor:not-allowed;">🔒</button>`;
+
+  const btnEditar = esDueño
+    ? `<button class="btn-secondary" onclick="editarReserva('${r.ID}')" style="font-size:12px;padding:5px 10px;">✏️ Editar</button>`
+    : `<button class="btn-secondary" disabled title="Solo ${r.Socio||'quien la cargó'} puede editar esta reserva." style="font-size:12px;padding:5px 10px;opacity:0.35;cursor:not-allowed;">✏️ Editar</button>`;
+
+  const cargadaFmt = r.Cargada
+    ? r.Cargada.replace(/GMT.*/,'').trim()
+    : '—';
+
+  return `
+  <div class="reserva-card">
+    <div class="rc-row1">
+      <div>
+        <div class="rc-name">🏕️ ${r.Cabaña} — ${r.Nombre||'—'}</div>
+        <div class="rc-sub">DNI/CUIT: ${r.DNI_CUIT||'—'}${r.Telefono?' · '+r.Telefono:''}${r.Email?' · '+r.Email:''}</div>
+        ${r.Direccion?'<div class="rc-sub">'+r.Direccion+'</div>':''}
+      </div>
+      <div style="display:flex;gap:6px;align-items:flex-start;">
+        ${btnEditar}
+        ${btnEliminar}
+      </div>
+    </div>
+    <div class="rc-chips">
+      ${estadoBadge}
+      <span class="chip ${r.Tipo==='Empresa'?'chip-amber':'chip-blue'}">${r.Tipo||'—'}</span>
+      <span class="chip chip-green">🌙 ${noches} noche${noches!==1?'s':''}</span>
+      ${monto?`<span class="chip chip-green">${monto}</span>`:''}
+      ${r.Pago?`<span class="chip chip-gray">${r.Pago}</span>`:''}
+      ${r.Socio?`<span class="chip chip-gray">👤 ${r.Socio}</span>`:''}
+    </div>
+    <div class="rc-sub" style="margin-top:8px;">📅 ${entradaFmt} → ${salidaFmt}</div>
+    ${r.NotaInterna&&esDueño?`<div class="rc-obs" style="border-left-color:#FF8C00;background:var(--warning-bg);margin-top:8px;" title="Nota interna — solo visible para vos">🔒 ${r.NotaInterna}</div>`:''}
+    ${r.Observaciones?`<div class="rc-obs">📝 ${r.Observaciones}</div>`:''}
+    <div class="rc-footer">Cargada: ${cargadaFmt}</div>
+  </div>`;
 }
 
 // ═══════════════════════════════════════════════════════════
