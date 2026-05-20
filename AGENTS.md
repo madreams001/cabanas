@@ -41,8 +41,9 @@
 - **Cromi decide cuándo subir** a producción (GitHub Pages / GAS)
 
 ### Dónde están los archivos
-- Directorio de trabajo: `C:\Users\Cromi\curso-opencode\`
+- Directorio de trabajo: `C:\Users\Cromi\curso-opencode\proyectos\cabanas\`
 - Git repo ya inicializado
+- Estructura: `proyectos/<nombre-proyecto>/` para cada proyecto
 
 ### Claves del proyecto cabañas (solo para contexto técnico)
 - Sheet ID: `1dvfBmFWT1ejwdIEZDGja9WGn9V2PZnoGFXV97o7qkgk`
