@@ -168,7 +168,7 @@ async function cargarReservas() {
   }
 
   try {
-    const url = API_URL + '?token=' + encodeURIComponent(ACCESS_TOKEN) + '&t=' + Date.now();
+    const url = API_URL + '?token=' + encodeURIComponent(ACCESS_TOKEN) + (adminSession ? '&adminKey=' + encodeURIComponent(ADMIN_KEY) : '') + '&t=' + Date.now();
     const res = await fetch(url, { method: 'GET', redirect: 'follow' });
     const data = await res.json();
     if (data.ok) {
@@ -1603,8 +1603,8 @@ let syncInterval = null;
         return;
       }
       
-      // No admin: pedir clave
-      const clave = prompt('🔧 El sistema está en MANTENIMIENTO.\n\nIngresá la clave de administrador para trabajar:');
+      // No admin: pedir clave para ACCEDER (no desactiva)
+      const clave = prompt('🔧 El sistema está en MANTENIMIENTO.\n\nIngresá la clave de administrador para ACCEDER y trabajar.\n(El mantenimiento seguirá activo para los socios)');
       
       if (clave === ADMIN_KEY) {
         adminSession = true;

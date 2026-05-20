@@ -29,11 +29,15 @@ function doGet(e) {
     // 1. PRIORIDAD: Verificar estado de mantenimiento global
     const props = PropertiesService.getScriptProperties();
     const enMantenimiento = props.getProperty('mantenimiento_activo') === 'true';
-    // Si está en mantenimiento, ignorar caché y avisar inmediatamente
-    if (enMantenimiento) {
+    
+    // Si está en mantenimiento, verificar si es admin para darle acceso
+    const isAdmin = e.parameter.adminKey === 'CabanasCatamarca2026#Adriana_ADMIN';
+    
+    if (enMantenimiento && !isAdmin) {
       CacheService.getScriptCache().removeAll(['reservas_data']);
       return buildResponse({ ok: true, mantenimiento: true, reservas: [] });
     }
+    // Si es admin, ignoramos el bloqueo de mantenimiento y seguimos para devolver datos
     // 2. Si NO hay mantenimiento, usar caché para velocidad
     const cache = CacheService.getScriptCache();
     const cached = cache.get('reservas_data');
