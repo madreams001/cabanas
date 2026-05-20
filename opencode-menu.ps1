@@ -48,6 +48,8 @@ switch ($opcion) {
         $session_id = Read-Host "Pega el ID de la sesion"
         Write-Host ""
         Write-Host "Iniciando sesion..." -ForegroundColor Yellow
+        # Guardar sesion para continuar despues
+        $session_id | Out-File -FilePath "$WORK_DIR\.last-session" -Encoding utf8 -NoNewline
         Write-Host ""
         opencode -s $session_id
     }
