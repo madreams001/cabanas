@@ -1614,7 +1614,7 @@ function renderCalendario() {
   reservas.forEach(r => {
     let d = new Date(r.Entrada + 'T12:00:00');
     const end = new Date(r.Salida + 'T12:00:00');
-    while (d < end) {
+    while (d <= end) {
       const key = r.Cabaña + '|' + ds(d.getFullYear(), d.getMonth(), d.getDate());
       if (!resMap[key]) resMap[key] = [];
       resMap[key].push(r);
@@ -2075,7 +2075,7 @@ function renderListado() {
 
     const btnEditar = esDueño
       ? `<button class="btn-secondary" onclick="editarReserva('${r.ID}')" style="font-size:12px;padding:5px 10px;">✏️ Editar</button>`
-      : '';
+      : `<button class="btn-secondary" disabled title="Solo ${r.Socio||'quien la cargó'} puede editar esta reserva." style="font-size:12px;padding:5px 10px;opacity:0.35;cursor:not-allowed;">✏️ Editar</button>`;
 
     const cargadaFmt = r.Cargada
       ? r.Cargada.replace(/GMT.*/,'').trim()
@@ -2104,9 +2104,9 @@ function renderListado() {
         ${r.Socio?`<span class="chip chip-gray">👤 ${r.Socio}</span>`:''}
       </div>
       <div class="rc-sub" style="margin-top:8px;">📅 ${entradaFmt} → ${salidaFmt}</div>
+      ${r.NotaInterna&&esDueño?`<div class="rc-obs" style="border-left-color:#FF8C00;background:var(--warning-bg);margin-top:8px;" title="Nota interna — solo visible para vos">🔒 ${r.NotaInterna}</div>`:''}
       ${r.Observaciones?`<div class="rc-obs">📝 ${r.Observaciones}</div>`:''}
-      ${r.NotaInterna&&esDueño?`<div class="rc-obs" style="border-left-color:#FF8C00;background:var(--warning-bg);" title="Nota interna — solo visible para vos">🔒 ${r.NotaInterna}</div>`:''}
-      <div class="rc-footer">Cargada: ${cargadaFmt}${r.Socio?' · 👤 '+r.Socio:''}</div>
+      <div class="rc-footer">Cargada: ${cargadaFmt}</div>
     </div>`;
   }).join('');
 }
