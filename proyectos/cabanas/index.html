@@ -3082,7 +3082,17 @@ if (savedUser) {
 let syncInterval = null;
 
 (async function init() {
+  // Mostrar caché local inmediatamente si existe
+  const cacheLocal = localStorage.getItem('reservas_cache');
+  if (cacheLocal) {
+    try {
+      reservas = JSON.parse(cacheLocal);
+      renderAll();
+    } catch(e) { localStorage.removeItem('reservas_cache'); }
+  }
+  
   document.getElementById('connectionBanner').style.display = 'block';
+  document.getElementById('connectionBanner').textContent = cacheLocal ? 'Sincronizando...' : 'Conectando...';
   
   // Restaurar sesión de admin desde localStorage
   adminSession = localStorage.getItem('admin_session') === 'true';
@@ -3133,6 +3143,13 @@ let syncInterval = null;
   } catch (e) {
     console.error('Error verificando mantenimiento global:', e);
     document.getElementById('connectionBanner').style.display = 'none';
+    // Si no hay conexión pero hay caché, mostrar datos guardados
+    if (reservas.length > 0) {
+      iniciarIdentidad();
+      renderAll();
+      setSyncStatus('error', 'Sin conexión · mostrando datos guardados');
+      return;
+    }
     // Si no hay conexión pero sos admin, entrá igual
     if (adminSession) {
       document.getElementById('adminMaintBanner').style.display = 'block';
