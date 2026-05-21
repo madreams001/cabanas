@@ -1647,16 +1647,6 @@ function changeMonth(d) {
   renderCalendario();
   renderDisponibilidad();
 }
-      return;
-    }
-  }
-
-  calMonth += d;
-  if (calMonth > 11) { calMonth = 0; calYear++; }
-  if (calMonth < 0)  { calMonth = 11; calYear--; }
-  renderCalendario();
-  renderDisponibilidad();
-}
 function ds(y,m,d) {
   return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
 }
@@ -1694,25 +1684,6 @@ function renderMesesNav() {
   });
 
   // 3. Mostrar [Hoy] solo si NO estoy en el mes actual real
-  if (calMonth !== mesActual) {
-    html += `<button class="cal-month-dot" onclick="goToday()">Hoy</button>`;
-  }
-
-  nav.innerHTML = html;
-}
-  });
-
-  let html = '';
-  MESES.forEach((nombre, i) => {
-    // Mostrar todos los meses con reservas excepto el que estoy viendo
-    if (i !== calMonth && mesesConReservas.has(i)) {
-      const cls = 'cal-month-dot has-reservas';
-      const corto = nombre.substring(0, 3).toUpperCase();
-      html += `<button class="${cls}" onclick="calMonth=${i};renderCalendario();renderDisponibilidad();">${corto}</button>`;
-    }
-  });
-
-  // Mostrar [Hoy] solo si NO estoy en el mes actual
   if (calMonth !== mesActual) {
     html += `<button class="cal-month-dot" onclick="goToday()">Hoy</button>`;
   }
@@ -3176,6 +3147,8 @@ document.addEventListener('DOMContentLoaded', () => {
   formCard.addEventListener('input',  () => { formularioActivo = true; setSyncStatus('ok', '⏸ Sync pausado'); });
   formCard.addEventListener('change', () => { formularioActivo = true; setSyncStatus('ok', '⏸ Sync pausado'); });
 });
+
+</script>
 </script>
 </body>
 </html>
