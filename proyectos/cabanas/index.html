@@ -1668,14 +1668,8 @@ function renderMesesNav() {
 
   let html = '';
   MESES.forEach((nombre, i) => {
-    // 1. No mostrar el mes que estoy viendo
     if (i === calMonth) return;
-    
-    // 2. Si voy a mostrar el botón [Hoy], no mostrar el botón del mes actual real
-    // (para evitar redundancia: [MAY] y [Hoy] al mismo tiempo)
-    const mostrarHoy = (calMonth !== mesActual);
-    if (mostrarHoy && i === mesActual) return;
-
+    if (i === mesActual) return;
     if (mesesConReservas.has(i)) {
       const cls = 'cal-month-dot has-reservas';
       const corto = nombre.substring(0, 3).toUpperCase();
@@ -1683,7 +1677,6 @@ function renderMesesNav() {
     }
   });
 
-  // 3. Mostrar [Hoy] solo si NO estoy en el mes actual real
   if (calMonth !== mesActual) {
     html += `<button class="cal-month-dot" onclick="goToday()">Hoy</button>`;
   }
@@ -3150,5 +3143,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </script>
 </script>
-</body>
 </html>
