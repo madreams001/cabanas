@@ -1678,11 +1678,11 @@ function renderMesesNav() {
     }
   });
 
-  if (calMonth !== mesActual) {
-    html += `<button class="cal-month-dot" onclick="goToday()">Hoy</button>`;
-  }
-
   nav.innerHTML = html;
+  
+  // Ocultar botón "Hoy" hardcodeado del HTML cuando estamos en el mes actual
+  const btnHoy = document.querySelector('.btn-today');
+  if (btnHoy) btnHoy.style.display = (calMonth === mesActual) ? 'none' : '';
 }
 
 function fmtFecha(s) {
@@ -3141,6 +3141,8 @@ document.addEventListener('DOMContentLoaded', () => {
   formCard.addEventListener('input',  () => { formularioActivo = true; setSyncStatus('ok', '⏸ Sync pausado'); });
   formCard.addEventListener('change', () => { formularioActivo = true; setSyncStatus('ok', '⏸ Sync pausado'); });
 });
+
+</script>
 
 </script>
 </script>
