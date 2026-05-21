@@ -1,0 +1,59 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode/qwen3.6-plus-free",
+  "small_model": "opencode/qwen3-coder",
+  "instructions": [
+    "AGENTS.md"
+  ],
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      "dist/**",
+      ".git/**",
+      "*.min.html",
+      "*.min.js"
+    ]
+  },
+  "compaction": {
+    "auto": true,
+    "prune": true
+  },
+  "permission": {
+    "bash": {
+      "*": "ask",
+      "git status*": "allow",
+      "git log*": "allow",
+      "git diff*": "allow",
+      "git branch*": "allow",
+      "ls*": "allow",
+      "dir*": "allow",
+      "grep*": "allow",
+      "rg*": "allow",
+      "find*": "allow",
+      "cat*": "allow",
+      "type*": "allow",
+      "echo*": "allow",
+      "npm run*": "allow",
+      "node*": "allow",
+      "pwsh*": "allow",
+      "powershell*": "allow",
+      "git commit*": "deny",
+      "git push*": "deny",
+      "git force*": "deny",
+      "rm*": "deny",
+      "del*": "deny",
+      "rmdir*": "deny"
+    },
+    "edit": "ask",
+    "write": "ask",
+    "read": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "*.env.example": "allow"
+    },
+    "external_directory": "ask",
+    "doom_loop": "ask"
+  },
+  "share": "manual"
+}
