@@ -1,0 +1,20 @@
+# Ignorar todo por defecto
+*
+
+# Permitir archivos de Google Apps Script
+!*.gs
+!*.html
+!.clasp.json
+!appsscript.json
+
+# Ignorar archivos del frontend y herramientas
+index.html
+index.min.html
+index-gas.html
+minify.js
+desplegar.ps1
+*.png
+*.md
+
+# Ignorar archivo remoto con nombre conflictivo
+Código.js
