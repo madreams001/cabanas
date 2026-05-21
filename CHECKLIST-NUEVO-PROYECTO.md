@@ -1,0 +1,127 @@
+# Checklist: Inicio de Proyecto Nuevo
+
+Cuando Cromi pide crear un proyecto nuevo, seguir estos pasos **en orden**:
+
+## 1. Estructura de carpetas
+
+```
+proyectos/<nombre>/
+├── opencode.json       ← Copiar desde plantilla
+├── AGENTS.md           ← Crear con /init o desde plantilla
+└── .opencode/          ← Crear si necesita skills/agentes custom
+```
+
+## 2. Seguridad (SIEMPRE)
+
+- [ ] Verificar que `opencode.json` exista en la raíz del proyecto
+- [ ] Permisos `bash`: `"*": "ask"` (preguntar antes de ejecutar)
+- [ ] Permisos `edit`: `"ask"` (preguntar antes de modificar)
+- [ ] Bloquear comandos peligrosos: `git commit*`, `git push*`, `rm*`, `del*` → `"deny"`
+- [ ] Permitir comandos seguros: `git status*`, `git log*`, `grep*`, `ls*` → `"allow"`
+- [ ] Bloquear lectura de `.env`: `"*.env": "deny"`
+- [ ] `external_directory`: `"ask"`
+- [ ] `doom_loop`: `"ask"`
+
+## 3. Configuración del proyecto
+
+- [ ] Definir modelo principal (por defecto: `opencode/qwen3.6-plus-free`)
+- [ ] Definir `small_model` para tareas livianas (`opencode/qwen3-coder`)
+- [ ] Configurar `watcher.ignore` según el tipo de proyecto
+- [ ] Configurar `instructions` con archivos relevantes (AGENTS.md, guías, etc.)
+- [ ] `share`: `"manual"` (no compartir automáticamente)
+- [ ] `compaction`: `auto: true`, `prune: true`
+
+## 4. AGENTS.md (Memoria del proyecto)
+
+- [ ] Crear con estructura clara:
+  - Nombre y descripción del proyecto
+  - Estructura de archivos
+  - Tecnologías usadas
+  - Convenciones de código
+  - Historial reciente
+  - Roadmap / tareas futuras
+- [ ] Commitear a git (SIEMPRE)
+
+## 5. Agentes especializados (si aplica)
+
+- [ ] ¿Necesita agentes custom? Crear en `.opencode/agents/`
+- [ ] Definir permisos por agente (ej: review = solo lectura)
+- [ ] Asignar modelo según complejidad de la tarea
+
+## 6. Skills (si aplica)
+
+- [ ] ¿Hay flujos de trabajo reutilizables? Crear en `.opencode/skills/`
+- [ ] Cada skill necesita: `SKILL.md` con frontmatter YAML (`name` + `description`)
+- [ ] Configurar permisos de skills si es necesario
+
+## 7. Git
+
+- [ ] `git init` si es repo nuevo
+- [ ] `git add .` y `git commit -m "Inicio del proyecto: <nombre>"`
+- [ ] Crear remote en GitHub y `git push`
+- [ ] Verificar que NO se commiteen archivos sensibles (.env, claves, etc.)
+
+## 8. Verificación final
+
+- [ ] Probar que `opencode` abre correctamente en el proyecto
+- [ ] Verificar que los permisos funcionan (probar un comando bash)
+- [ ] Confirmar que el agente lee el AGENTS.md correctamente
+- [ ] Documentar en el AGENTS.md global qué se hizo
+
+---
+
+## Plantilla rápida de opencode.json
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode/qwen3.6-plus-free",
+  "small_model": "opencode/qwen3-coder",
+  "instructions": ["AGENTS.md"],
+  "watcher": {
+    "ignore": ["node_modules/**", "dist/**", ".git/**"]
+  },
+  "compaction": {
+    "auto": true,
+    "prune": true
+  },
+  "permission": {
+    "bash": {
+      "*": "ask",
+      "git status*": "allow",
+      "git log*": "allow",
+      "git diff*": "allow",
+      "git branch*": "allow",
+      "ls*": "allow",
+      "dir*": "allow",
+      "grep*": "allow",
+      "rg*": "allow",
+      "find*": "allow",
+      "cat*": "allow",
+      "type*": "allow",
+      "echo*": "allow",
+      "npm run*": "allow",
+      "node*": "allow",
+      "pwsh*": "allow",
+      "powershell*": "allow",
+      "git commit*": "deny",
+      "git push*": "deny",
+      "git force*": "deny",
+      "rm*": "deny",
+      "del*": "deny",
+      "rmdir*": "deny"
+    },
+    "edit": "ask",
+    "write": "ask",
+    "read": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "*.env.example": "allow"
+    },
+    "external_directory": "ask",
+    "doom_loop": "ask"
+  },
+  "share": "manual"
+}
+```
