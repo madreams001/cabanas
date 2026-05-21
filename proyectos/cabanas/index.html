@@ -1333,7 +1333,8 @@ body {
 //  ESTADO GLOBAL
 // ═══════════════════════════════════════════════════════════
 let reservas = [];
-let calYear, calMonth;
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
 let usuarioActual = '';
 let vistaListado = 'lista';
 const IS_CONFIGURED = API_URL !== 'PEGAR_AQUI_LA_URL_DE_APPS_SCRIPT';
@@ -3141,6 +3142,7 @@ document.addEventListener('DOMContentLoaded', () => {
   formCard.addEventListener('change', () => { formularioActivo = true; setSyncStatus('ok', '⏸ Sync pausado'); });
 });
 
+</script>
 </script>
 </script>
 </html>
