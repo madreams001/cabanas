@@ -3074,7 +3074,6 @@ let syncInterval = null;
   if (cacheLocal) {
     try {
       reservas = JSON.parse(cacheLocal);
-      renderAll();
     } catch(e) { localStorage.removeItem('reservas_cache'); }
   }
   
@@ -3141,6 +3140,30 @@ let syncInterval = null;
     if (adminSession) {
       document.getElementById('adminMaintBanner').style.display = 'block';
       iniciarIdentidad();
+      cargarReservas();
+      if (!syncInterval) syncInterval = setInterval(() => { cargarReservas(); renderDisponibilidad(); }, 60000);
+      return;
+    }
+  }
+
+  if (verificarMantenimiento()) {
+    document.getElementById('connectionBanner').style.display = 'none';
+    return;
+  }
+
+  iniciarIdentidad();
+  cargarReservas();
+  if (!syncInterval) syncInterval = setInterval(() => { cargarReservas(); renderDisponibilidad(); }, 60000);
+})();
+
+document.addEventListener('DOMContentLoaded', () => {
+  const formCard = document.getElementById('formCard');
+  if (!formCard) return;
+  formCard.addEventListener('input',  () => { formularioActivo = true; setSyncStatus('ok', '⏸ Sync pausado'); });
+  formCard.addEventListener('change', () => { formularioActivo = true; setSyncStatus('ok', '⏸ Sync pausado'); });
+});
+
+</script>
       cargarReservas();
       if (!syncInterval) syncInterval = setInterval(() => { cargarReservas(); renderDisponibilidad(); }, 60000);
       return;

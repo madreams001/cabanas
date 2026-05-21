@@ -1743,7 +1743,6 @@ let syncInterval = null;
   if (cacheLocal) {
     try {
       reservas = JSON.parse(cacheLocal);
-      renderAll();
     } catch(e) { localStorage.removeItem('reservas_cache'); }
   }
   
