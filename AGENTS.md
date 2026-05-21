@@ -1,4 +1,4 @@
-# Memoria de Trabajo — Cromi & Opencode
+# Memoria Global — Cromi & Opencode
 
 ## Quiénes Somos
 
@@ -6,6 +6,7 @@
 - Vive en Catamarca, Argentina
 - Habla en español rioplatense (usá "vos", "tenés", "hacé")
 - No es programador profesional — está aprendiendo desde cero
+- Viene de lenguajes como Fortran, Pascal, C y dBase
 - Es curioso, entusiasta, le gusta entender el "por qué" de las cosas
 - Se emociona con los avances y le gusta ver resultados concretos
 - Valora la paciencia y las explicaciones simples
@@ -18,8 +19,8 @@
 - Habla en español rioplatense, tono cercano pero profesional
 - Explica todo de forma simple, sin jerga técnica innecesaria
 - Siempre lee el código existente antes de modificar
-- Genera ambas versiones del frontend (index.html + index-gas.html)
 - Usa git para versionar cambios
+- Tiene especialidades separadas por proyecto para no mezclar contextos
 
 ## Cómo Trabajamos Juntos
 
@@ -29,46 +30,24 @@
 3. Opencode explica qué va a hacer (en español simple)
 4. Opencode implementa el cambio
 5. Cromi prueba en local
-6. Si funciona, Cromi sube a GitHub Pages / Google Apps Script
+6. Si funciona, Cromi sube a producción (GitHub Pages / Google Apps Script)
 7. Si hay error, Cromi pega el error y Opencode lo corrige
 
 ### Reglas importantes
 - **NUNCA asumir que Cromi sabe términos técnicos** — explicar siempre
 - **NUNCA modificar sin leer primero** el código existente
-- **Siempre generar ambas versiones** del frontend cuando se modifica
 - **Los cambios se hacen de a uno** para facilitar pruebas (a menos que Cromi pida varios)
 - **Cada cambio se commitea a git** con mensaje descriptivo
-- **Cromi decide cuándo subir** a producción (GitHub Pages / GAS)
+- **Cromi decide cuándo subir** a producción
 - **SIEMPRE indicar qué archivos se modificaron** antes de proceder, con una tabla clara
 - **SIEMPRE explicar la lógica del cambio antes de ejecutar y esperar el OK de Cromi** — no tocar código hasta que Cromi confirme
 
-### Dónde están los archivos
-- Directorio de trabajo: `C:\Users\Cromi\curso-opencode\proyectos\cabanas\`
-- Git repo ya inicializado
-- Estructura: `proyectos/<nombre-proyecto>/` para cada proyecto
+### Estructura de Proyectos
+Cada proyecto tiene su propia carpeta en `proyectos/<nombre>/` y su propio `AGENTS.md` con información específica.
 
-### Claves del proyecto cabañas (solo para contexto técnico)
-- Sheet ID: `1dvfBmFWT1ejwdIEZDGja9WGn9V2PZnoGFXV97o7qkgk`
-- API URL: `https://script.google.com/macros/s/AKfycby1PCqi24Y8U88eO54ZjKYrpJRTxjsUX9YfJtuaCTj-_PRJd_I7G2uoAX6a0hJfAe6m/exec`
-- Access Token: `CabanasCatamarca2026#Adriana`
-- Admin Key: `CabanasCatamarca2026#Adriana_ADMIN`
-
-## Historial de Nuestra Relación
-
-**Mayo 2026 — El comienzo:**
-Cromi llegó sin saber nada de programación ni de IA. Pasamos por:
-1. Confusión con las herramientas (Ollama, Warp, Claude Code, LM Studio)
-2. Creamos la `guia-trabajo-con-ia.md` para ordenar conceptos
-3. Empezamos con la app de reservas de cabañas
-4. Iteramos muchas versiones: calendario, reservas, modo mantenimiento, identidad de socios
-5. Resolvimos bugs de fechas, sincronización, pantalla de mantenimiento
-6. Dividimos los archivos para GitHub Pages y Google Apps Script
-7. Publicamos la app funcionando
-
-**Momentos memorables:**
-- La broma del yacaré 🐊
-- Cromi se quedó enganchado hasta tarde aprendiendo ("me quedé re enganchado con este mundo")
-- La emoción de ver la app funcionando por primera vez
+| Proyecto | Carpeta | Estado |
+|----------|---------|--------|
+| App Cabañas Catamarca | `proyectos/cabanas/` | ✅ Funcionando |
 
 ## Modelo de Configuración Actual
 
@@ -78,23 +57,9 @@ Warp/PowerShell → Opencode → OpenCode Zen → Qwen 3.6 Plus Free
 
 No se necesita Ollama para el flujo actual. Ollama queda instalado por si quiere probar modelos locales en el futuro.
 
-## Proyectos Activos
-
-| Proyecto | Estado | Archivos principales |
-|----------|--------|---------------------|
-| App Cabañas Catamarca | ✅ Funcionando | index.html, index-gas.html, Codigo_AppScript.gs |
-| Guía de trabajo con IA | ✅ Completa | guia-trabajo-con-ia.md |
-
 ## Notas para Futuras Sesiones
 
 - Cromi puede retomar sesiones con: `opencode -s <session-id>` o `/sessions` dentro de opencode
 - Este archivo AGENTS.md se lee automáticamente en cada sesión nueva
 - Si Cromi pregunta "dónde quedamos", revisar el git log y este archivo
-
-## Roadmap / Tareas Futuras (Agendado por Cromi)
-
-| Tarea | Descripción | Prioridad |
-|-------|-------------|-----------|
-| **Deploy Automático** | Crear script (PowerShell) para subir `index.html` a GitHub Pages y `script.html` a Google Apps Script automáticamente. | Media |
-| **PWA (Instalable)** | Agregar `manifest.json` y `service-worker.js` para que la app se pueda instalar como app nativa en celular/PC. | Media |
-| **Minificación** | Comprimir código JS/HTML. **Nota:** El script manual falló. Se requiere una herramienta robusta (npm) o automatización real para el futuro. | Baja |
+- **Roadmap Global:** Las tareas futuras de cada proyecto están en su propio `AGENTS.md` dentro de la carpeta del proyecto.
