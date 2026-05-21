@@ -5,6 +5,7 @@
 // ============================================================
 const SHEET_ID    = '1dvfBmFWT1ejwdIEZDGja9WGn9V2PZnoGFXV97o7qkgk';
 const SHEET_NAME  = 'Reservas';
+const CONFIG_SHEET_NAME = 'Config';
 const ACCESS_TOKEN = 'CabanasCatamarca2026#Adriana';
 const COLS = [
   'ID', 'Cabaña', 'Tipo', 'Estado', 'Nombre', 'DNI_CUIT', 
@@ -12,6 +13,7 @@ const COLS = [
   'Noches', 'Pago', 'Monto', 'Observaciones', 'Socio', 
   'Cargada', 'NotaInterna'
 ];
+const CONFIG_COLS = ['id', 'nombre', 'tarifa', 'capacidad', 'descripcion'];
 function buildResponse(data) {
   return ContentService
     .createTextOutput(JSON.stringify(data))
@@ -46,7 +48,7 @@ function doGet(e) {
     }
     // 3. Leer hoja si no hay caché
     const rows = sheet.getDataRange().getValues();
-    if (rows.length <= 1) return buildResponse({ ok: true, mantenimiento: false, reservas: [] });
+    if (rows.length <= 1) return buildResponse({ ok: true, mantenimiento: false, reservas: [], config: leerConfig(ss) });
     const reservas = rows.slice(1)
       .filter(row => row[0] !== '' && row[0] !== null)
       .map(row => {
@@ -65,7 +67,7 @@ function doGet(e) {
       });
     // Guardar en caché por 30 segundos
     cache.put('reservas_data', JSON.stringify(reservas), 30);
-    return buildResponse({ ok: true, mantenimiento: false, reservas });
+    return buildResponse({ ok: true, mantenimiento: false, reservas, config: leerConfig(ss) });
   } catch (err) {
     return buildResponse({ ok: false, error: err.message });
   }
@@ -98,6 +100,7 @@ function doPost(e) {
     if (payload.action === 'crear')    return crearReserva(sheet, payload.reserva);
     if (payload.action === 'editar')   return editarReserva(sheet, payload.id, payload.reserva);
     if (payload.action === 'eliminar') return eliminarReserva(sheet, payload.id);
+    if (payload.action === 'config')   return guardarConfigSheet(ss, payload.config);
     return buildResponse({ ok: false, error: 'Accion desconocida' });
   } catch (err) {
     return buildResponse({ ok: false, error: err.message });
@@ -309,4 +312,83 @@ function setColumnWidths(sheet) {
 // ── Incluir archivos HTML separados (patrón GAS include) ────
 function include(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CONFIGURACIÓN DE CABAÑAS (hoja "Config")
+// ═══════════════════════════════════════════════════════════
+
+function getOrCreateConfigSheet(ss) {
+  let sheet = ss.getSheetByName(CONFIG_SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(CONFIG_SHEET_NAME);
+    const hr = sheet.getRange(1, 1, 1, CONFIG_COLS.length);
+    hr.setValues([CONFIG_COLS]);
+    hr.setBackground('#1a73e8');
+    hr.setFontColor('#ffffff');
+    hr.setFontWeight('bold');
+    hr.setHorizontalAlignment('center');
+    sheet.setFrozenRows(1);
+    // Crear config por defecto para 8 cabañas
+    const defaultRows = [];
+    for (let i = 1; i <= 8; i++) {
+      defaultRows.push([i.toString(), 'Cabaña ' + i, 0, 0, '']);
+    }
+    if (defaultRows.length > 0) {
+      sheet.getRange(2, 1, defaultRows.length, CONFIG_COLS.length).setValues(defaultRows);
+    }
+  }
+  return sheet;
+}
+
+function leerConfig(ss) {
+  try {
+    const sheet = getOrCreateConfigSheet(ss);
+    const rows = sheet.getDataRange().getValues();
+    if (rows.length <= 1) return [];
+    return rows.slice(1)
+      .filter(row => row[0] !== '' && row[0] !== null)
+      .map(row => {
+        const obj = {};
+        CONFIG_COLS.forEach((col, i) => {
+          obj[col] = (row[i] || '').toString();
+        });
+        return obj;
+      });
+  } catch (e) {
+    return [];
+  }
+}
+
+function guardarConfigSheet(ss, config) {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(10000);
+  } catch (e) {
+    return buildResponse({ ok: false, error: 'Servidor ocupado. Intentá de nuevo.' });
+  }
+  try {
+    const sheet = getOrCreateConfigSheet(ss);
+    // Borrar todo excepto encabezados
+    const lastRow = sheet.getLastRow();
+    if (lastRow > 1) {
+      sheet.getRange(2, 1, lastRow - 1, CONFIG_COLS.length).clearContent();
+    }
+    // Escribir nueva config
+    if (config && config.length > 0) {
+      const rows = config.map(c => [
+        c.id.toString(),
+        c.nombre || '',
+        Number(c.tarifa) || 0,
+        Number(c.capacidad) || 0,
+        c.descripcion || ''
+      ]);
+      sheet.getRange(2, 1, rows.length, CONFIG_COLS.length).setValues(rows);
+    }
+    return buildResponse({ ok: true, mensaje: 'Configuración guardada' });
+  } catch (err) {
+    return buildResponse({ ok: false, error: err.message });
+  } finally {
+    lock.releaseLock();
+  }
 }

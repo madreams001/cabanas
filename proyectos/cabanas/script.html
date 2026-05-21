@@ -13,13 +13,13 @@ let identidadSeleccionada = false;
 
 // ── Configuración de cabañas (nombres y tarifas) ──────────────
 const CONFIG_KEY = 'cabanas_config_v1';
-let cabañasConfig = cargarConfigCabañas();
+let cabañasConfig = [];
 
 function cargarConfigCabañas() {
-  try {
-    const saved = localStorage.getItem(CONFIG_KEY);
-    if (saved) return JSON.parse(saved);
-  } catch(e) {}
+  const saved = localStorage.getItem(CONFIG_KEY);
+  if (saved) {
+    try { return JSON.parse(saved); } catch(e) {}
+  }
   return Array.from({length:8}, (_,i) => ({
     id:     i+1,
     nombre: 'Cabaña ' + (i+1),
@@ -183,6 +183,18 @@ async function cargarReservas() {
         Socio:   (r.Socio   || '').toString().trim(),
         Cargada: (r.Cargada || '').toString().trim()
       }));
+      
+      if (data.config && data.config.length > 0) {
+        cabañasConfig = data.config.map(c => ({
+          id: Number(c.id),
+          nombre: c.nombre || 'Cabaña ' + c.id,
+          tarifa: Number(c.tarifa) || 0,
+          capacidad: Number(c.capacidad) || 0,
+          descripcion: c.descripcion || ''
+        }));
+        localStorage.setItem(CONFIG_KEY, JSON.stringify(cabañasConfig));
+        actualizarSelectoresCabaña();
+      }
       
       if (!data.mantenimiento) {
         localStorage.setItem('reservas_cache', JSON.stringify(reservas));
@@ -1469,9 +1481,9 @@ function renderConfig() {
   el.innerHTML = `
     <div style="font-size:15px;font-weight:600;margin-bottom:1.25rem;">⚙️ Configuración de cabañas</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:1.5rem;">
-      <div style="padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:13px;color:var(--text-muted);">
-        Cambiá nombres, tarifas por noche y capacidad. Los cambios se guardan en este dispositivo. Si modificás el nombre de una cabaña, actualizá también las reservas existentes en el Sheet.
-      </div>
+       <div style="padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:13px;color:var(--text-muted);">
+         Cambiá nombres, tarifas por noche y capacidad. Los cambios se guardan en la nube y se sincronizan automáticamente. Si modificás el nombre de una cabaña, actualizá también las reservas existentes.
+       </div>
       <div style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;">
           <thead>
@@ -1507,6 +1519,7 @@ function renderConfig() {
 
 function guardarConfig() {
   guardarConfigCabañas();
+  apiGuardarConfig();
   actualizarSelectoresCabaña();
   renderCalendario();
   renderDisponibilidad();
@@ -1528,8 +1541,20 @@ function resetConfig() {
     id: i+1, nombre: 'Cabaña '+(i+1), tarifa: 0, capacidad: 0, descripcion: ''
   }));
   guardarConfigCabañas();
+  apiGuardarConfig();
   actualizarSelectoresCabaña();
   renderConfig();
+}
+
+async function apiGuardarConfig() {
+  try {
+    await fetch(API_URL, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'config', token: ACCESS_TOKEN, config: cabañasConfig })
+    });
+  } catch (e) { console.error('Error guardando config:', e); }
 }
 
 function renderAll() {
