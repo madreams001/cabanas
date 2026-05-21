@@ -1,0 +1,5 @@
+{
+  "jobs": [
+    { "input": "index.html", "output": "index.min.html" }
+  ]
+}

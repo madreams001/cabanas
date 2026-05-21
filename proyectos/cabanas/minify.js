@@ -1,44 +1,57 @@
-const fs = require('fs');
+// ═══════════════════════════════════════════════════════════
+//  MINIFY — Cabañas Catamarca
+//  Usa html-minifier-terser (instalado globalmente)
+//  Uso: node minify.js
+// ═══════════════════════════════════════════════════════════
 
-const inputFile = 'index.html';
-const outputFile = 'index.min.html';
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+const inputFile = path.resolve('index.html');
+const outputFile = path.resolve('index.min.html');
 
 if (!fs.existsSync(inputFile)) {
-  console.error(`❌ Error: No se encontró ${inputFile}`);
+  console.error(`❌ No se encontró ${inputFile}`);
   process.exit(1);
 }
 
-let html = fs.readFileSync(inputFile, 'utf8');
+const originalSize = fs.statSync(inputFile).size;
 
-// ── Minificación Segura ──
+console.log('🚀 Minificando con html-minifier-terser...\n');
 
-// 1. Eliminar comentarios HTML
-html = html.replace(/<!--[\s\S]*?-->/g, '');
+try {
+  const cmd = [
+    'html-minifier-terser',
+    `"${inputFile}"`,
+    `-o "${outputFile}"`,
+    '--collapse-whitespace',
+    '--remove-comments',
+    '--remove-optional-tags',
+    '--remove-redundant-attributes',
+    '--remove-script-type-attributes',
+    '--remove-tag-whitespace',
+    '--use-short-doctype',
+    '--minify-css true',
+    '--minify-js true',
+    '--collapse-boolean-attributes',
+    '--conservative-collapse',
+    '--decode-entities',
+  ].join(' ');
 
-// 2. Eliminar comentarios de bloque JS/CSS
-html = html.replace(/\/\*[\s\S]*?\*\//g, '');
+  execSync(cmd, { stdio: 'pipe' });
 
-// 3. Eliminar comentarios de línea JS (//) pero no URLs (http://)
-html = html.replace(/(?<!:)\/\/.*$/gm, '');
+  const minSize = fs.statSync(outputFile).size;
+  const saved = originalSize - minSize;
+  const savings = ((saved / originalSize) * 100).toFixed(1);
 
-// 4. Colapsar saltos de línea y espacios múltiples
-html = html.replace(/\n/g, ' ');
-html = html.replace(/\s{2,}/g, ' ');
-
-// 5. Eliminar espacios entre etiquetas (ej: <div>  <p> -> <div><p>)
-html = html.replace(/>\s+</g, '><');
-
-// 6. Eliminar espacios al inicio y final
-html = html.trim();
-
-fs.writeFileSync(outputFile, html);
-
-const originalSize = Buffer.byteLength(fs.readFileSync(inputFile, 'utf8'), 'utf8');
-const minSize = Buffer.byteLength(html, 'utf8');
-const savings = ((originalSize - minSize) / originalSize * 100).toFixed(1);
-
-console.log(`✅ Minificación segura exitosa!`);
-console.log(`📄 Original: ${(originalSize / 1024).toFixed(1)} KB`);
-console.log(`📦 Minificado: ${(minSize / 1024).toFixed(1)} KB`);
-console.log(`💾 Ahorro: ${savings}%`);
-console.log(`📁 Archivo generado: ${outputFile}`);
+  console.log('✅ Minificación exitosa!');
+  console.log(`📄 Original: ${(originalSize / 1024).toFixed(1)} KB`);
+  console.log(`📦 Minificado: ${(minSize / 1024).toFixed(1)} KB`);
+  console.log(`💾 Ahorro: ${savings}%`);
+  console.log(`📁 Archivo generado: ${outputFile}`);
+} catch (err) {
+  console.error('❌ Error durante la minificación:');
+  console.error(err.message);
+  process.exit(1);
+}
