@@ -48,6 +48,25 @@ Cada proyecto tiene su propia carpeta en `proyectos/<nombre>/` y su propio `AGEN
 | Proyecto | Carpeta | Estado |
 |----------|---------|--------|
 | App Cabañas Catamarca | `proyectos/cabanas/` | ✅ Funcionando |
+| Numerología | `proyectos/numerologia/` | 📋 Pendiente |
+| Tarot | `proyectos/tarot/` | 📋 Pendiente |
+| Finanzas Personales | `proyectos/finanzas/` | 📋 Pendiente |
+| Opciones Financieras | `proyectos/opciones/` | 📋 Pendiente |
+| Cabañas v2 (Gráfica) | `proyectos/cabanas-v2/` | 📋 Pendiente |
+| Optimización de Compras | `proyectos/compras/` | 📋 Pendiente |
+| [Por definir] | - | 💡 Idea futura |
+
+## Lista de Proyectos Futuros (Roadmap)
+
+Cromi quiere trabajar en estos proyectos a futuro:
+
+1. **Numerología:** Cálculos e interpretaciones basadas en fechas/nombres.
+2. **Tarot:** App o sistema de lectura de cartas.
+3. **Finanzas Personales:** Control de gastos, ingresos y presupuestos.
+4. **Opciones Financieras:** Seguimiento o simulación de opciones financieras.
+5. **Cabañas v2 (Gráfica):** Una versión más visual y moderna del proyecto actual de cabañas.
+6. **Optimización de Compras:** Sistema para comparar precios o gestionar compras eficientemente.
+7. **[Por definir]:** Cromi tiene más ideas que irán surgiendo.
 
 ## Modelo de Configuración Actual
 
