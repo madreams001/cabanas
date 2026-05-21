@@ -1,5 +1,5 @@
-# Ignorar todo por defecto
-*
+# Ignorar todo por defecto (recursivo)
+**/*
 
 # Permitir archivos de Google Apps Script
 !*.gs
