@@ -1618,20 +1618,18 @@ function goToday() {
 }
 function changeMonth(d) {
   const targetMonth = calMonth + d;
+  let checkM = targetMonth;
+  let checkY = calYear;
+  if (checkM < 0) { checkM = 11; checkY--; }
+  if (checkM > 11) { checkM = 0; checkY++; }
   
-  // Lógica para retroceder: verificar si hay reservas
+  // Solo bloquear retroceso si el mes destino es anterior al mes actual
   if (d === -1) {
-    let checkM = targetMonth;
-    let checkY = calYear;
-    if (checkM < 0) { checkM = 11; checkY--; }
+    const now = new Date();
+    const mesActual = now.getMonth();
+    const anioActual = now.getFullYear();
     
-    const hayReservas = reservas.some(r => {
-      if (!r.Entrada) return false;
-      const dEntrada = new Date(r.Entrada + 'T12:00:00');
-      return dEntrada.getMonth() === checkM && dEntrada.getFullYear() === checkY;
-    });
-
-    if (!hayReservas) {
+    if (checkY < anioActual || (checkY === anioActual && checkM < mesActual)) {
       const msgEl = document.getElementById('noPrevMsg');
       if (msgEl) {
         msgEl.style.display = 'block';
@@ -1642,9 +1640,8 @@ function changeMonth(d) {
     }
   }
 
-  calMonth += d;
-  if (calMonth > 11) { calMonth = 0; calYear++; }
-  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  calMonth = checkM;
+  calYear = checkY;
   renderCalendario();
   renderDisponibilidad();
 }
@@ -3141,6 +3138,8 @@ document.addEventListener('DOMContentLoaded', () => {
   formCard.addEventListener('input',  () => { formularioActivo = true; setSyncStatus('ok', '⏸ Sync pausado'); });
   formCard.addEventListener('change', () => { formularioActivo = true; setSyncStatus('ok', '⏸ Sync pausado'); });
 });
+
+</script>
 
 </script>
 
