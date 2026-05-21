@@ -2205,7 +2205,7 @@ function renderListado() {
   });
 
   const listaKey = lista.map(r=>r.ID).join(',');
-  const cacheKey = JSON.stringify({filtCab, filtEstado, filtTipo, filtSocio, filtMes, filtBuscar, filtOrden, vistaListado});
+  const cacheKey = JSON.stringify({usuarioActual, filtCab, filtEstado, filtTipo, filtSocio, filtMes, filtBuscar, filtOrden, vistaListado});
   if (renderListado._lastKey === listaKey && renderListado._lastFilters === cacheKey) return;
   renderListado._lastKey = listaKey;
   renderListado._lastFilters = cacheKey;
