@@ -3,7 +3,7 @@
 ## Quiénes Somos
 
 ### Cromi (el usuario)
-- Vive en Catamarca, Argentina
+- Vive en Cordoba, Argentina
 - Habla en español rioplatense (usá "vos", "tenés", "hacé")
 - No es programador profesional — está aprendiendo desde cero
 - Viene de lenguajes como Fortran, Pascal, C y dBase
