@@ -26,7 +26,7 @@ Write-Host ""
 # ── 2. Git commit + push ─────────────────────────────────────
 Write-Host "📝 Paso 2: Commiteando cambios a Git..." -ForegroundColor Yellow
 Set-Location $projectRoot
-git add index.html index.min.html script.html style.html index-gas.html Codigo_AppScript.gs
+git add index.html index.min.html minis/index.html script.html style.html index-gas.html Codigo_AppScript.gs
 git diff --cached --quiet
 if ($LASTEXITCODE -ne 0) {
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm"
@@ -68,7 +68,7 @@ Write-Host "  ✅ DESPLIEGE COMPLETADO" -ForegroundColor Green
 Write-Host "═══════════════════════════════════════════════" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "📋 Resumen:" -ForegroundColor White
-Write-Host "   ✅ index.html minificado → index.min.html" -ForegroundColor Green
+Write-Host "   ✅ index.html minificado → minis/index.html + index.min.html" -ForegroundColor Green
 Write-Host "   ✅ Cambios commiteados a Git" -ForegroundColor Green
 Write-Host "   ✅ Push a GitHub (GitHub Pages actualizado)" -ForegroundColor Green
 Write-Host "   ✅ Push a Google Apps Script (backend actualizado)" -ForegroundColor Green

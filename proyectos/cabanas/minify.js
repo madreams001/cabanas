@@ -10,6 +10,7 @@ const path = require('path');
 
 const inputFile = path.resolve('index.html');
 const outputFile = path.resolve('index.min.html');
+const minisFile = path.resolve('minis/index.html');
 
 if (!fs.existsSync(inputFile)) {
   console.error(`❌ No se encontró ${inputFile}`);
@@ -41,11 +42,17 @@ minify(inputContent, {
   const saved = originalSize - minSize;
   const savings = ((saved / originalSize) * 100).toFixed(1);
 
+  // Copiar a minis/index.html
+  const minisDir = path.dirname(minisFile);
+  if (!fs.existsSync(minisDir)) fs.mkdirSync(minisDir, { recursive: true });
+  fs.writeFileSync(minisFile, minified, 'utf8');
+
   console.log('✅ Minificación exitosa!');
   console.log(`📄 Original: ${(originalSize / 1024).toFixed(1)} KB`);
   console.log(`📦 Minificado: ${(minSize / 1024).toFixed(1)} KB`);
   console.log(`💾 Ahorro: ${savings}%`);
-  console.log(`📁 Archivo generado: ${outputFile}`);
+  console.log(`📁 Generado: ${outputFile}`);
+  console.log(`📁 Copiado a: ${minisFile}`);
 }).catch((err) => {
   console.error('❌ Error durante la minificación:');
   console.error(err.message);
