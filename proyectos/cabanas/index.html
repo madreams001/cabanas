@@ -1095,6 +1095,7 @@ body {
         <button class="btn-today" onclick="goToday()">Hoy</button>
       </div>
     </div>
+    <div id="noPrevMsg" style="display:none;opacity:0;text-align:center;color:var(--danger);font-size:12px;margin-top:4px;transition:opacity 0.3s;">⚠️ No hay reservas en este mes</div>
 
     <div class="disp-panel" id="dispPanel"></div>
     <div class="cal-wrap">
@@ -1615,6 +1616,41 @@ function goToday() {
   renderDisponibilidad();
 }
 function changeMonth(d) {
+  const targetMonth = calMonth + d;
+  
+  // Lógica para retroceder: verificar si hay reservas
+  if (d === -1) {
+    let checkM = targetMonth;
+    let checkY = calYear;
+    if (checkM < 0) { checkM = 11; checkY--; }
+    
+    const hayReservas = reservas.some(r => {
+      if (!r.Entrada) return false;
+      const dEntrada = new Date(r.Entrada + 'T12:00:00');
+      return dEntrada.getMonth() === checkM && dEntrada.getFullYear() === checkY;
+    });
+
+    if (!hayReservas) {
+      const msgEl = document.getElementById('noPrevMsg');
+      if (msgEl) {
+        msgEl.style.display = 'block';
+        msgEl.style.opacity = '1';
+        setTimeout(() => { msgEl.style.opacity = '0'; setTimeout(() => msgEl.style.display = 'none', 300); }, 2000);
+      }
+      return;
+    }
+  }
+
+  calMonth += d;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  renderCalendario();
+  renderDisponibilidad();
+}
+      return;
+    }
+  }
+
   calMonth += d;
   if (calMonth > 11) { calMonth = 0; calYear++; }
   if (calMonth < 0)  { calMonth = 11; calYear--; }
@@ -1638,6 +1674,32 @@ function renderMesesNav() {
       const m = new Date(r.Entrada + 'T12:00:00').getMonth();
       mesesConReservas.add(m);
     }
+  });
+
+  let html = '';
+  MESES.forEach((nombre, i) => {
+    // 1. No mostrar el mes que estoy viendo
+    if (i === calMonth) return;
+    
+    // 2. Si voy a mostrar el botón [Hoy], no mostrar el botón del mes actual real
+    // (para evitar redundancia: [MAY] y [Hoy] al mismo tiempo)
+    const mostrarHoy = (calMonth !== mesActual);
+    if (mostrarHoy && i === mesActual) return;
+
+    if (mesesConReservas.has(i)) {
+      const cls = 'cal-month-dot has-reservas';
+      const corto = nombre.substring(0, 3).toUpperCase();
+      html += `<button class="${cls}" onclick="calMonth=${i};calYear=${now.getFullYear()};renderCalendario();renderDisponibilidad();">${corto}</button>`;
+    }
+  });
+
+  // 3. Mostrar [Hoy] solo si NO estoy en el mes actual real
+  if (calMonth !== mesActual) {
+    html += `<button class="cal-month-dot" onclick="goToday()">Hoy</button>`;
+  }
+
+  nav.innerHTML = html;
+}
   });
 
   let html = '';
