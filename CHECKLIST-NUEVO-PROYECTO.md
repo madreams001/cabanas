@@ -2,6 +2,14 @@
 
 Cuando Cromi pide crear un proyecto nuevo, seguir estos pasos **en orden**:
 
+## 📚 Estrategia de Documentación
+
+Para mantenernos actualizados y seguros ante caídas del sitio:
+
+1. **Referencia Local (Prioridad):** Usar `MEJORES-PRACTICAS-OPENCODE.md` y este checklist para la configuración estándar. Ya tenemos lo esencial guardado.
+2. **Verificación en Vivo:** Si necesitamos información nueva o dudamos de algo, leer `https://opencode.ai/docs/es` directamente para obtener la versión más reciente.
+3. **Fallback:** Si la página oficial está fuera de servicio o cambió drásticamente, usar los archivos locales como la "verdad" hasta que se pueda verificar.
+
 ## 1. Estructura de carpetas
 
 ```
