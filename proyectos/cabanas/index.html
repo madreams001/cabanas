@@ -1667,31 +1667,51 @@ function renderMesesNav() {
   
   const now = new Date();
   const mesActual = now.getMonth();
+  const anioActual = now.getFullYear();
   
+  // Guardar pares [año, mes] con reservas
   const mesesConReservas = new Set();
   reservas.forEach(r => {
     if (r.Entrada) {
-      const m = new Date(r.Entrada + 'T12:00:00').getMonth();
-      mesesConReservas.add(m);
+      const d = new Date(r.Entrada + 'T12:00:00');
+      mesesConReservas.add(d.getFullYear() + '-' + d.getMonth());
     }
   });
 
+  // Recopilar todos los años que tienen reservas
+  const aniosConReservas = new Set();
+  mesesConReservas.forEach(key => {
+    aniosConReservas.add(Number(key.split('-')[0]));
+  });
+  // Agregar año actual y del calendario
+  aniosConReservas.add(anioActual);
+  aniosConReservas.add(calYear);
+
   let html = '';
-  MESES.forEach((nombre, i) => {
-    if (i === calMonth) return;
-    if (i === mesActual) return;
-    if (mesesConReservas.has(i)) {
-      const cls = 'cal-month-dot has-reservas';
-      const corto = nombre.substring(0, 3).toUpperCase();
-      html += `<button class="${cls}" onclick="calMonth=${i};calYear=${now.getFullYear()};renderCalendario();renderDisponibilidad();">${corto}</button>`;
-    }
+  const aniosOrdenados = Array.from(aniosConReservas).sort((a, b) => a - b);
+  
+  aniosOrdenados.forEach(anio => {
+    MESES.forEach((nombre, mes) => {
+      const key = anio + '-' + mes;
+      // No mostrar el mes/año que estoy viendo
+      if (anio === calYear && mes === calMonth) return;
+      // No mostrar el botón del mes actual real si estamos en otro mes (se usa "Hoy")
+      if (anio === anioActual && mes === mesActual) return;
+      
+      if (mesesConReservas.has(key)) {
+        const cls = 'cal-month-dot has-reservas';
+        const corto = nombre.substring(0, 3).toUpperCase();
+        const label = (anio !== anioActual) ? `${corto} ${String(anio).slice(2)}` : corto;
+        html += `<button class="${cls}" onclick="calMonth=${mes};calYear=${anio};renderCalendario();renderDisponibilidad();">${label}</button>`;
+      }
+    });
   });
 
   nav.innerHTML = html;
   
-  // Ocultar botón "Hoy" hardcodeado del HTML cuando estamos en el mes actual
+  // Ocultar botón "Hoy" hardcodeado del HTML cuando estamos en el mes/año actual
   const btnHoy = document.querySelector('.btn-today');
-  if (btnHoy) btnHoy.style.display = (calMonth === mesActual) ? 'none' : '';
+  if (btnHoy) btnHoy.style.display = (calMonth === mesActual && calYear === anioActual) ? 'none' : '';
 }
 
 function fmtFecha(s) {
