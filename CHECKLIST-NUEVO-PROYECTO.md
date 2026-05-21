@@ -125,3 +125,32 @@ proyectos/<nombre>/
   "share": "manual"
 }
 ```
+
+---
+
+## 9. Configuración avanzada (explorar según necesidad)
+
+Estas secciones de la documentación oficial aún no se implementaron, pero pueden ser útiles en el futuro:
+
+| Sección | Para qué sirve | Prioridad |
+|---------|----------------|-----------|
+| **LSP Servers** (`/docs/es/lsp/`) | Autocompletado inteligente, ir a definición, detectar errores en vivo. OpenCode conecta con language servers del lenguaje del proyecto. | Alta |
+| **Comandos personalizados** (`/docs/es/commands/`) | Crear atajos como `/test`, `/deploy`, `/lint` para tareas repetitivas. Se definen en `opencode.json` o `.opencode/commands/`. | Alta |
+| **Formateadores** (`/docs/es/formatters/`) | Formatear código automáticamente al editar (prettier, black, etc.). Se configuran en `opencode.json`. | Media |
+| **MCP Servers** (`/docs/es/mcp-servers/`) | Conectar OpenCode a APIs externas (GitHub, Jira, bases de datos, herramientas de equipo). | Media |
+| **Herramientas personalizadas** (`/docs/es/custom-tools/`) | Crear herramientas propias que el agente pueda usar (scripts custom, integraciones). | Baja |
+| **Temas** (`/docs/es/themes/`) | Personalizar apariencia visual de la TUI. | Baja |
+| **Keybinds** (`/docs/es/keybinds/`) | Personalizar atajos de teclado. | Baja |
+| **Windows/WSL** (`/docs/es/windows-wsl/`) | OpenCode recomienda usar WSL en Windows para mejor rendimiento y compatibilidad completa. | Verificar |
+
+### Cuándo usar cada una
+
+- **LSP**: Cuando el proyecto usa un lenguaje con soporte (TypeScript, Python, Go, Rust, etc.) y querés autocompletado y detección de errores en vivo.
+- **Comandos personalizados**: Cuando hay tareas que se repiten mucho (correr tests, deploy, lint, build).
+- **Formateadores**: Cuando querés que el código se formatee solo al editar, sin tener que pedirlo.
+- **MCP**: Cuando necesitás que OpenCode interactúe con servicios externos (crear issues en GitHub, consultar bases de datos, etc.).
+- **WSL**: Si notás que OpenCode va lento en Windows nativo, migrar a WSL puede mejorar el rendimiento.
+
+### Referencia
+
+Toda la documentación está en: https://opencode.ai/docs/es
