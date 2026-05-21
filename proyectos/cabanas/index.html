@@ -2849,6 +2849,18 @@ function renderConfig() {
 }
 
 function guardarConfig() {
+  // Leer valores directamente del DOM para evitar problema de onchange
+  cabañasConfig.forEach((c, i) => {
+    const nombreEl = document.getElementById(`cfg_nombre_${i}`);
+    const tarifaEl = document.getElementById(`cfg_tarifa_${i}`);
+    const capEl = document.getElementById(`cfg_cap_${i}`);
+    const descEl = document.getElementById(`cfg_desc_${i}`);
+    if (nombreEl) c.nombre = nombreEl.value;
+    if (tarifaEl) c.tarifa = Number(tarifaEl.value) || 0;
+    if (capEl) c.capacidad = Number(capEl.value) || 0;
+    if (descEl) c.descripcion = descEl.value;
+  });
+  
   guardarConfigCabañas();
   apiGuardarConfig();
   actualizarSelectoresCabaña();
