@@ -90,3 +90,11 @@ No se necesita Ollama para el flujo actual. Ollama queda instalado por si quiere
 - Cromi puede retomar sesiones con: `opencode -s <session-id>` o `/sessions` dentro de opencode
 - Este archivo AGENTS.md se lee automáticamente en cada sesión nueva
 - Si Cromi pregunta "dónde quedamos", revisar el git log y este archivo
+
+## Roadmap / Tareas Futuras (Agendado por Cromi)
+
+| Tarea | Descripción | Prioridad |
+|-------|-------------|-----------|
+| **Deploy Automático** | Crear script (PowerShell) para subir `index.html` a GitHub Pages y `script.html` a Google Apps Script automáticamente. | Media |
+| **PWA (Instalable)** | Agregar `manifest.json` y `service-worker.js` para que la app se pueda instalar como app nativa en celular/PC. | Media |
+| **Minificación** | Comprimir código JS/HTML. **Nota:** El script manual falló. Se requiere una herramienta robusta (npm) o automatización real para el futuro. | Baja |

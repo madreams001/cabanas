@@ -1344,7 +1344,7 @@ let identidadSeleccionada = false;
 
 // ── Configuración de cabañas (nombres y tarifas) ──────────────
 const CONFIG_KEY = 'cabanas_config_v1';
-let cabañasConfig = [];
+let cabañasConfig = cargarConfigCabañas();
 
 function cargarConfigCabañas() {
   const saved = localStorage.getItem(CONFIG_KEY);
