@@ -1629,6 +1629,9 @@ function renderMesesNav() {
   const nav = document.getElementById('calMonthsNav');
   if (!nav) return;
   
+  const now = new Date();
+  const mesActual = now.getMonth();
+  
   const mesesConReservas = new Set();
   reservas.forEach(r => {
     if (r.Entrada) {
@@ -1639,13 +1642,19 @@ function renderMesesNav() {
 
   let html = '';
   MESES.forEach((nombre, i) => {
-    // Solo mostrar meses futuros con reservas, no el actual
-    if (i > calMonth && mesesConReservas.has(i)) {
+    // Mostrar todos los meses con reservas excepto el que estoy viendo
+    if (i !== calMonth && mesesConReservas.has(i)) {
       const cls = 'cal-month-dot has-reservas';
       const corto = nombre.substring(0, 3).toUpperCase();
       html += `<button class="${cls}" onclick="calMonth=${i};renderCalendario();renderDisponibilidad();">${corto}</button>`;
     }
   });
+
+  // Mostrar [Hoy] solo si NO estoy en el mes actual
+  if (calMonth !== mesActual) {
+    html += `<button class="cal-month-dot" onclick="goToday()">Hoy</button>`;
+  }
+
   nav.innerHTML = html;
 }
 
