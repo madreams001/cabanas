@@ -32,11 +32,14 @@
   *"⚠️ Se modificó el backend. Recordá ir a **script.google.com** → Implementar → **Nueva implementación** para actualizar la versión asociada a la URL de la API."*
 - **Frontend (`index.html`, `script.html`, `style.html`):** No necesita nueva implementación en GAS, el `clasp push` alcanza.
 
-## Última Sesión (21-May-2026)
-- **Tarea:** Fix: admin puede editar/eliminar cualquier reserva en "Todas las reservas".
-- **Cambios:** `index.html`, `script.html`, `index.min.html`, `minis/index.html`.
-- **Deploy:** ✅ Commit `182d66d` → push a `master`.
-- **Test local:** ✅ Funcionando.
+## Última Sesión (22-May-2026)
+- **Tarea:** Fix GitHub Pages deploy automático + workflow sync master→main.
+- **Cambios:**
+  - `.github/workflows/pages.yml`: trigger cambiado de `master` a `main`, agregado `workflow_dispatch`.
+  - `.github/workflows/sync-master-to-main.yml`: nuevo workflow que auto-sincroniza `master` → `main` en cada push.
+  - `master` forzado a `main` para activar el primer deploy.
+- **Deploy:** ✅ GitHub Pages funcionando en `https://madreams001.github.io/cabanas/`.
+- **Test:** ✅ Workflow deploy exitoso.
 - **Pendiente:** —
 
 ## Roadmap / Tareas Futuras
