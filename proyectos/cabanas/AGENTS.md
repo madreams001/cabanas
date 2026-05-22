@@ -33,13 +33,11 @@
 - **Frontend (`index.html`, `script.html`, `style.html`):** No necesita nueva implementación en GAS, el `clasp push` alcanza.
 
 ## Última Sesión (21-May-2026)
-- **Tarea:** Corrección de cacheKey en `script.html` (faltaba `usuarioActual`).
-- **Cambios:** `script.html`, `index.html`, `index.min.html`.
-- **Deploy:** ✅ Ejecutado (commit `00b8131`).
-- **Nuevo:** Carpeta `minis/` con minificado para GitHub Pages + workflow Actions.
-- **Push:** ✅ Subido (`00b8131..f3d067a` → `master`).
-- **Pendiente:** Probar en local el filtro por socio en listado.
-- **Próximo paso:** Cromi prueba en local y da orden para deploy automático.
+- **Tarea:** Fix: admin puede editar/eliminar cualquier reserva en "Todas las reservas".
+- **Cambios:** `index.html`, `script.html`, `index.min.html`, `minis/index.html`.
+- **Deploy:** ✅ Commit `182d66d` → push a `master`.
+- **Test local:** ✅ Funcionando.
+- **Pendiente:** —
 
 ## Roadmap / Tareas Futuras
 
