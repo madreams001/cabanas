@@ -1,6 +1,7 @@
 # ═══════════════════════════════════════════════════════════
 #  DESPLEGAR — Cabañas Catamarca
-#  Script integrador: minifica → commit → push GitHub → push GAS
+#  Minifica → commit → push a GitHub (master)
+#  El GitHub Action sync master→main + deploy a Pages es automático
 #  Uso: .\desplegar.ps1
 # ═══════════════════════════════════════════════════════════
 
@@ -23,10 +24,10 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Host ""
 
-# ── 2. Git commit + push ─────────────────────────────────────
+# ── 2. Git commit ─────────────────────────────────────────────
 Write-Host "📝 Paso 2: Commiteando cambios a Git..." -ForegroundColor Yellow
 Set-Location $projectRoot
-git add index.html index.min.html minis/index.html script.html style.html index-gas.html Codigo_AppScript.gs
+git add index.html index.min.html minis/index.html script.html style.html index-gas.html Codigo_AppScript.gs minify.js
 git diff --cached --quiet
 if ($LASTEXITCODE -ne 0) {
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm"
@@ -41,16 +42,20 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host ""
-Write-Host "📤 Paso 3: Pusheando a GitHub..." -ForegroundColor Yellow
-git push
+
+# ── 3. Push a GitHub (master) ─────────────────────────────────
+Write-Host "📤 Paso 3: Pusheando a GitHub (master)..." -ForegroundColor Yellow
+git push origin master
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Error en el push a GitHub. Abortando." -ForegroundColor Red
     exit 1
 }
-Write-Host "✅ Push a GitHub exitoso." -ForegroundColor Green
+Write-Host "✅ Push a master exitoso." -ForegroundColor Green
+Write-Host "   ⏳ GitHub Action sync master→main + deploy a Pages" -ForegroundColor Yellow
+Write-Host "   ✅ La app se actualiza sola en: https://madreams001.github.io/cabanas/" -ForegroundColor Green
 Write-Host ""
 
-# ── 3. Push a Google Apps Script ──────────────────────────────
+# ── 4. Push a Google Apps Script ──────────────────────────────
 Write-Host "☁️  Paso 4: Pusheando a Google Apps Script..." -ForegroundColor Yellow
 Set-Location $projectRoot
 clasp push -f
@@ -70,8 +75,9 @@ Write-Host ""
 Write-Host "📋 Resumen:" -ForegroundColor White
 Write-Host "   ✅ index.html minificado → minis/index.html + index.min.html" -ForegroundColor Green
 Write-Host "   ✅ Cambios commiteados a Git" -ForegroundColor Green
-Write-Host "   ✅ Push a GitHub (GitHub Pages actualizado)" -ForegroundColor Green
+Write-Host "   ✅ Push a master (→ GitHub Action sync master→main automatic)" -ForegroundColor Green
 Write-Host "   ✅ Push a Google Apps Script (backend actualizado)" -ForegroundColor Green
 Write-Host ""
-Write-Host "⚠️  Recordá hacer 'Nueva implementación' en GAS si cambiaste el backend." -ForegroundColor Magenta
+Write-Host "⚠️  Backend modificado? Recordá hacer 'Nueva implementación' en GAS." -ForegroundColor Magenta
+Write-Host "⚠️  Frontend: no necesitas hacer nada, el GitHub Action deploya solo." -ForegroundColor Magenta
 Write-Host ""
