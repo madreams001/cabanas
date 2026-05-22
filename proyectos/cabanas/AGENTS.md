@@ -26,6 +26,12 @@
   - Configuración de cabañas sincronizada con Google Sheets (hoja "Config").
   - Implementación de script de minificación (`minify.js`).
 
+## Reglas de Despliegue
+
+- **Backend (`Codigo_AppScript.gs`):** Si se modifica, Opencode DEBE alertar a Cromi con el mensaje:
+  *"⚠️ Se modificó el backend. Recordá ir a **script.google.com** → Implementar → **Nueva implementación** para actualizar la versión asociada a la URL de la API."*
+- **Frontend (`index.html`, `script.html`, `style.html`):** No necesita nueva implementación en GAS, el `clasp push` alcanza.
+
 ## Roadmap / Tareas Futuras
 
 | Tarea | Descripción | Prioridad |

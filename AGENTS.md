@@ -41,6 +41,7 @@
 - **Cromi decide cuándo subir** a producción
 - **SIEMPRE indicar qué archivos se modificaron** antes de proceder, con una tabla clara
 - **SIEMPRE explicar la lógica del cambio antes de ejecutar y esperar el OK de Cromi** — no tocar código hasta que Cromi confirme
+- **Backend (`Codigo_AppScript.gs`):** Si se modifica, Opencode DEBE alertar a Cromi con: *"⚠️ Se modificó el backend. Recordá ir a **script.google.com** → Implementar → **Nueva implementación** para actualizar la versión asociada a la URL de la API."*
 
 ### Estructura de Proyectos
 Cada proyecto tiene su propia carpeta en `proyectos/<nombre>/` y su propio `AGENTS.md` con información específica.
