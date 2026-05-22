@@ -20,5 +20,8 @@ jobs:
           git config user.name "opencode-auto"
           git config user.email "opencode@cabanas.local"
           git push origin master:main --force
-      - run: |
-          gh workflow run "Deploy minified to Pages" --ref main
+      - name: Trigger deploy on main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run "Deploy minified to Pages" --ref main --repo ${{ github.repository }}
