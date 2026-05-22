@@ -83,3 +83,5 @@ No se necesita Ollama para el flujo actual. Ollama queda instalado por si quiere
 - Este archivo AGENTS.md se lee automáticamente en cada sesión nueva
 - Si Cromi pregunta "dónde quedamos", revisar el git log y este archivo
 - **Roadmap Global:** Las tareas futuras de cada proyecto están en su propio `AGENTS.md` dentro de la carpeta del proyecto.
+- **Última sesión:** 21-May-2026 — Trabajando en **Cabañas Catamarca** (corrección cacheKey, carpeta `minis/`, permisos git push).
+- **Estado:** Pendiente de reiniciar sesión (`opencode -r`) para que tomen efecto los nuevos permisos de push. Luego hacer push de los 2 commits pendientes.

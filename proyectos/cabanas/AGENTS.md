@@ -32,6 +32,14 @@
   *"⚠️ Se modificó el backend. Recordá ir a **script.google.com** → Implementar → **Nueva implementación** para actualizar la versión asociada a la URL de la API."*
 - **Frontend (`index.html`, `script.html`, `style.html`):** No necesita nueva implementación en GAS, el `clasp push` alcanza.
 
+## Última Sesión (21-May-2026)
+- **Tarea:** Corrección de cacheKey en `script.html` (faltaba `usuarioActual`).
+- **Cambios:** `script.html`, `index.html`, `index.min.html`.
+- **Deploy:** ✅ Ejecutado (commit `00b8131`).
+- **Nuevo:** Carpeta `minis/` con minificado para GitHub Pages + workflow Actions.
+- **Pendiente:** Probar en local el filtro por socio en listado.
+- **Próximo paso:** Cromi prueba en local y da orden para deploy automático.
+
 ## Roadmap / Tareas Futuras
 
 | Tarea | Descripción | Prioridad |
