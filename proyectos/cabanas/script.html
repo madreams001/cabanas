@@ -791,7 +791,7 @@ async function eliminar(id, nombre, socioCargo) {
     alert('Primero seleccioná tu nombre en la parte superior.');
     return;
   }
-  if (usuarioActual.trim().toLowerCase() !== (socioCargo||'').trim().toLowerCase()) {
+  if (!adminSession && usuarioActual.trim().toLowerCase() !== (socioCargo||'').trim().toLowerCase()) {
     alert('⛔ No podés eliminar esta reserva.\nSolo ' + socioCargo + ' puede eliminarla porque fue quien la cargó.');
     return;
   }
@@ -938,7 +938,8 @@ function renderCard(r) {
     ? '<span class="chip" style="background:#FAD201;color:#4a3800;border:1px solid #c8a200;">🟡 No confirmada</span>'
     : '';
 
-  const esDueño = !!(usuarioActual &&
+  const esAdmin = adminSession;
+  const esDueño = esAdmin || !!(usuarioActual &&
     usuarioActual.trim().toLowerCase() === (r.Socio||'').trim().toLowerCase());
 
   const btnEliminar = esDueño

@@ -37,6 +37,7 @@
 - **Cambios:** `script.html`, `index.html`, `index.min.html`.
 - **Deploy:** ✅ Ejecutado (commit `00b8131`).
 - **Nuevo:** Carpeta `minis/` con minificado para GitHub Pages + workflow Actions.
+- **Push:** ✅ Subido (`00b8131..f3d067a` → `master`).
 - **Pendiente:** Probar en local el filtro por socio en listado.
 - **Próximo paso:** Cromi prueba en local y da orden para deploy automático.
 
