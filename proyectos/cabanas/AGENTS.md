@@ -33,13 +33,15 @@
 - **Frontend (`index.html`, `script.html`, `style.html`):** No necesita nueva implementación en GAS, el `clasp push` alcanza.
 
 ## Última Sesión (22-May-2026)
-- **Tarea:** Fix GitHub Pages deploy automático + workflow sync master→main.
+- **Tarea:** Fix GitHub Pages deploy automático + workflow sync master→main + actualizar desplegar.ps1.
 - **Cambios:**
   - `.github/workflows/pages.yml`: trigger cambiado de `master` a `main`, agregado `workflow_dispatch`.
-  - `.github/workflows/sync-master-to-main.yml`: nuevo workflow que auto-sincroniza `master` → `main` en cada push.
+  - `.github/workflows/sync-master-to-main.yml`: nuevo workflow que auto-sincroniza `master` → `main` y dispara el deploy con `gh workflow run`.
   - `master` forzado a `main` para activar el primer deploy.
+  - `desplegar.ps1`: actualizado para reflejar el nuevo flujo auto-deploy.
 - **Deploy:** ✅ GitHub Pages funcionando en `https://madreams001.github.io/cabanas/`.
-- **Test:** ✅ Workflow deploy exitoso.
+- **Test:** ✅ Workflow sync + deploy exitoso (run #3 y #4).
+- **Flujo final:** `.\desplegar.ps1` → minifica → commit → push a master → [GitHub Action sync master→main → deploy Pages]. El deploy manual se controla ejecutando el script localmente, no se deploya automáticamente con cada cambio.
 - **Pendiente:** —
 
 ## Roadmap / Tareas Futuras
