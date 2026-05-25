@@ -627,7 +627,6 @@ async function guardarReserva() {
   if (!dni)    { showErr('Ingresá el DNI o CUIT.'); return; }
     if (!ent)    { showErr('Seleccioná la fecha de entrada.'); return; }
     if (!sal)    { showErr('Seleccioná la fecha de salida.'); return; }
-    if (estado === 'Ocupada' && ent > hoy) { showErr('No se puede editar como Ocupada con fecha de entrada futura.'); return; }
   if (sal<=ent){ showErr('La fecha de salida debe ser posterior a la entrada.'); return; }
 
   const hoy = ds(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
@@ -722,6 +721,7 @@ async function guardarReservaConEdicion() {
     if (!dni)    { showErr('Ingresá el DNI o CUIT.'); return; }
     if (!ent)    { showErr('Seleccioná la fecha de entrada.'); return; }
     if (!sal)    { showErr('Seleccioná la fecha de salida.'); return; }
+    if (sal <= ent) { showErr('La fecha de salida debe ser posterior a la de entrada.'); return; }
 
     const payload = {
       cabaña:      cab,
@@ -766,7 +766,7 @@ async function guardarReservaConEdicion() {
         formularioActivo = false;
         if (IS_CONFIGURED) await cargarReservas();
         else renderAll();
-        showOk('✅ Reserva de ' + nombre + ' actualizada correctamente.');
+        showOk('✅ Reserva de ' + nombre + ' actualizada correctamente.', 'sonidoEditar');
         clearForm();
       } else if (result.conflicto) {
         showErr('⚠️ Conflicto en servidor: ' + result.error);
@@ -804,11 +804,12 @@ async function eliminar(id, nombre, socioCargo) {
   try {
     if (IS_CONFIGURED) {
       const result = await apiEliminar(id);
-      if (result.ok) await cargarReservas();
+      if (result.ok) { await cargarReservas(); document.getElementById('sonidoBorrar').play().catch(()=>{}); }
       else alert('Error al eliminar: ' + result.error);
     } else {
       reservas = reservas.filter(r=>r.ID.toString()!==id.toString());
       renderAll();
+      document.getElementById('sonidoBorrar').play().catch(()=>{});
     }
     setSyncStatus('ok', 'Sincronizado · ' + new Date().toLocaleTimeString('es-AR'));
   } catch(e) {
@@ -1183,6 +1184,7 @@ function exportCSV() {
 //  HELPERS FORMULARIO
 // ═══════════════════════════════════════════════════════════
 function clearForm() {
+  editandoReserva = null;
   ['fCabaña','fTipo','fEstado','fPago'].forEach(id=>document.getElementById(id).value='');
   ['fNombre','fDni','fTel','fEmail','fDir','fEntrada','fSalida','fNoches','fMonto','fObs','fNotaInterna'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fSocio').value = usuarioActual;
@@ -1191,6 +1193,8 @@ function clearForm() {
   if (titulo) titulo.textContent = '➕ Nueva reserva';
   const btn = document.getElementById('btnGuardar');
   if (btn) btn.innerHTML = '💾 Guardar reserva';
+  const btnEliminar = document.getElementById('btnEliminarForm');
+  if (btnEliminar) btnEliminar.style.display = 'none';
   const badge = document.getElementById('estadoBadge');
   badge.style.background='var(--surface2)'; badge.style.color='var(--text-muted)'; badge.textContent='Sin estado seleccionado';
   hideAlerts();
@@ -1199,24 +1203,79 @@ function clearForm() {
 }
 function hideAlerts() {
   ['alertConflicto','alertError','alertOk'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  activarBotonGuardar();
 }
 function showErr(msg) {
   const el=document.getElementById('alertError');
   el.innerHTML='❌ '+msg; el.classList.add('show');
   el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  document.getElementById('sonidoError').play().catch(()=>{});
+  desactivarBotonGuardar();
 }
-function showOk(msg) {
+
+function showOk(msg, soundId) {
   const el=document.getElementById('alertOk');
   el.innerHTML=msg; el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'), 5000);
+  if (soundId === 'sonidoEditar') { playEditar(); return; }
+  document.getElementById(soundId||'sonidoExito').play().catch(()=>{});
 }
+
+function playEditar() {
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    // Double chirp estilo Twitter
+    osc.type = 'sine';
+    gain.gain.value = 0.25;
+    osc.start();
+    osc.frequency.setValueAtTime(660, ctx.currentTime);
+    osc.frequency.setValueAtTime(880, ctx.currentTime+0.06);
+    osc.frequency.setValueAtTime(0, ctx.currentTime+0.12);
+    osc.frequency.setValueAtTime(660, ctx.currentTime+0.15);
+    osc.frequency.setValueAtTime(990, ctx.currentTime+0.21);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.35);
+    osc.stop(ctx.currentTime+0.35);
+  } catch(e) { /* fallo silencioso */ }
+}
+
+function desactivarBotonGuardar() {
+  const btn=document.getElementById('btnGuardar');
+  if (!btn) return;
+  btn.disabled=true;
+  btn.style.opacity='0.5';
+}
+function activarBotonGuardar() {
+  const btn=document.getElementById('btnGuardar');
+  if (!btn) return;
+  btn.disabled=false;
+  btn.style.opacity='1';
+}
+
+// Re-activar botón cuando el usuario modifique cualquier campo del formulario
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('#formCard input, #formCard select, #formCard textarea').forEach(el=>{
+    el.addEventListener('input',activarBotonGuardar);
+    el.addEventListener('change',activarBotonGuardar);
+  });
+});
 
 // ═══════════════════════════════════════════════════════════
 //  EDITAR RESERVA
 // ═══════════════════════════════════════════════════════════
+
+/** Reserva que se está editando actualmente (para el botón eliminar en el form) */
+let editandoReserva = null;
+
 function editarReserva(id) {
   const r = reservas.find(x => x.ID.toString() === id.toString());
   if (!r) return;
+
+  editandoReserva = { id: r.ID, nombre: r.Nombre, socio: r.Socio };
+
   showTab('nueva');
   document.getElementById('fEditId').value    = r.ID;
   document.getElementById('fCabaña').value    = r.Cabaña;
@@ -1235,8 +1294,30 @@ function editarReserva(id) {
   document.getElementById('fNotaInterna').value = r.NotaInterna||'';
   document.getElementById('formTitulo').textContent = '✏️ Editando reserva — ' + r.Nombre;
   document.getElementById('btnGuardar').innerHTML   = '💾 Guardar cambios';
+
+  // Mostrar botón eliminar con permisos
+  const btnEliminar = document.getElementById('btnEliminarForm');
+  const esAdmin = adminSession;
+  const esDueño = esAdmin || !!(usuarioActual &&
+    usuarioActual.trim().toLowerCase() === (r.Socio||'').trim().toLowerCase());
+  if (esDueño) {
+    btnEliminar.style.display = 'inline-flex';
+    btnEliminar.disabled = false;
+    btnEliminar.title = 'Eliminar esta reserva';
+  } else {
+    btnEliminar.style.display = 'inline-flex';
+    btnEliminar.disabled = true;
+    btnEliminar.title = 'Solo ' + (r.Socio||'quien la cargó') + ' puede eliminar esta reserva.';
+  }
+
   setTimeout(checkConflict, 50);
   window.scrollTo({top:0, behavior:'smooth'});
+}
+
+async function eliminarForm() {
+  if (!editandoReserva) return;
+  await eliminar(editandoReserva.id, editandoReserva.nombre||'', editandoReserva.socio||'');
+  clearForm();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1848,4 +1929,3 @@ document.addEventListener('DOMContentLoaded', () => {
   formCard.addEventListener('input',  () => { formularioActivo = true; setSyncStatus('ok', '⏸ Sync pausado'); });
   formCard.addEventListener('change', () => { formularioActivo = true; setSyncStatus('ok', '⏸ Sync pausado'); });
 });
-

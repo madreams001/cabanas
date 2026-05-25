@@ -21,6 +21,11 @@
 </head>
 <body>
 
+<!-- ── Sonidos de feedback ────────────────────────────── -->
+<audio id="sonidoExito" preload="auto" src="sonido-exito.mp3"></audio>
+<audio id="sonidoError" preload="auto" src="sonido-error.mp3"></audio>
+<audio id="sonidoBorrar" preload="auto" src="sonido-borrar.mp3"></audio>
+
 <!-- Banner de admin en modo mantenimiento -->
 <div class="admin-maint-banner" id="adminMaintBanner">
   🔧 MODO MANTENIMIENTO ACTIVO — Los socios no pueden acceder.
@@ -293,6 +298,7 @@
 
       <div class="form-actions">
         <button class="btn-secondary" onclick="clearForm()">Limpiar</button>
+        <button class="btn-secondary rc-delete" id="btnEliminarForm" onclick="eliminarForm()" style="display:none;">🗑️ Eliminar</button>
         <button class="btn-primary" id="btnGuardar" onclick="guardarReservaConEdicion()">
           💾 Guardar reserva
         </button>
