@@ -991,7 +991,6 @@ body {
 <audio id="sonidoExito" preload="auto" src="sonido-exito.mp3"></audio>
 <audio id="sonidoError" preload="auto" src="sonido-error.mp3"></audio>
 <audio id="sonidoBorrar" preload="auto" src="sonido-borrar.mp3"></audio>
-<audio id="sonidoEditar" preload="auto" src="sonido-editar.mp3"></audio>
 
 <!-- Banner de admin en modo mantenimiento -->
 <div class="admin-maint-banner" id="adminMaintBanner">
@@ -2555,7 +2554,29 @@ function showOk(msg, soundId) {
   const el=document.getElementById('alertOk');
   el.innerHTML=msg; el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'), 5000);
+  if (soundId === 'sonidoEditar') { playEditar(); return; }
   document.getElementById(soundId||'sonidoExito').play().catch(()=>{});
+}
+
+function playEditar() {
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    // Double chirp estilo Twitter
+    osc.type = 'sine';
+    gain.gain.value = 0.25;
+    osc.start();
+    osc.frequency.setValueAtTime(660, ctx.currentTime);
+    osc.frequency.setValueAtTime(880, ctx.currentTime+0.06);
+    osc.frequency.setValueAtTime(0, ctx.currentTime+0.12);
+    osc.frequency.setValueAtTime(660, ctx.currentTime+0.15);
+    osc.frequency.setValueAtTime(990, ctx.currentTime+0.21);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.35);
+    osc.stop(ctx.currentTime+0.35);
+  } catch(e) { /* fallo silencioso */ }
 }
 
 function desactivarBotonGuardar() {
