@@ -987,6 +987,10 @@ body {
 </head>
 <body>
 
+<!-- ── Sonidos de feedback ────────────────────────────── -->
+<audio id="sonidoExito" preload="auto" src="sonido-exito.mp3"></audio>
+<audio id="sonidoError" preload="auto" src="sonido-error.mp3"></audio>
+
 <!-- Banner de admin en modo mantenimiento -->
 <div class="admin-maint-banner" id="adminMaintBanner">
   🔧 MODO MANTENIMIENTO ACTIVO — Los socios no pueden acceder.
@@ -2534,17 +2538,43 @@ function clearForm() {
 }
 function hideAlerts() {
   ['alertConflicto','alertError','alertOk'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  activarBotonGuardar();
 }
 function showErr(msg) {
   const el=document.getElementById('alertError');
   el.innerHTML='❌ '+msg; el.classList.add('show');
   el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  document.getElementById('sonidoError').play().catch(()=>{});
+  desactivarBotonGuardar();
 }
+
 function showOk(msg) {
   const el=document.getElementById('alertOk');
   el.innerHTML=msg; el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'), 5000);
+  document.getElementById('sonidoExito').play().catch(()=>{});
 }
+
+function desactivarBotonGuardar() {
+  const btn=document.getElementById('btnGuardar');
+  if (!btn) return;
+  btn.disabled=true;
+  btn.style.opacity='0.5';
+}
+function activarBotonGuardar() {
+  const btn=document.getElementById('btnGuardar');
+  if (!btn) return;
+  btn.disabled=false;
+  btn.style.opacity='1';
+}
+
+// Re-activar botón cuando el usuario modifique cualquier campo del formulario
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('#formReserva input, #formReserva select, #formReserva textarea').forEach(el=>{
+    el.addEventListener('input',activarBotonGuardar);
+    el.addEventListener('change',activarBotonGuardar);
+  });
+});
 
 // ═══════════════════════════════════════════════════════════
 //  EDITAR RESERVA

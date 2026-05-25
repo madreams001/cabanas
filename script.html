@@ -1204,17 +1204,69 @@ function clearForm() {
 }
 function hideAlerts() {
   ['alertConflicto','alertError','alertOk'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  activarBotonGuardar();
 }
 function showErr(msg) {
   const el=document.getElementById('alertError');
   el.innerHTML='❌ '+msg; el.classList.add('show');
   el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  reproducirSonido('error');
+  desactivarBotonGuardar();
 }
 function showOk(msg) {
   const el=document.getElementById('alertOk');
   el.innerHTML=msg; el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'), 5000);
+  reproducirSonido('exito');
 }
+
+function desactivarBotonGuardar() {
+  const btn=document.getElementById('btnGuardar');
+  if (!btn) return;
+  btn.disabled=true;
+  btn.style.opacity='0.5';
+}
+function activarBotonGuardar() {
+  const btn=document.getElementById('btnGuardar');
+  if (!btn) return;
+  btn.disabled=false;
+  btn.style.opacity='1';
+}
+
+// Sonidos con Web Audio API (no necesita archivos)
+function reproducirSonido(tipo) {
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    if (tipo==='exito') {
+      osc.frequency.value = 880;
+      osc.type = 'sine';
+      gain.gain.value = 0.3;
+      osc.start();
+      osc.frequency.setValueAtTime(1100, ctx.currentTime+0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.3);
+      osc.stop(ctx.currentTime+0.3);
+    } else {
+      osc.frequency.value = 260;
+      osc.type = 'sawtooth';
+      gain.gain.value = 0.2;
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.4);
+      osc.stop(ctx.currentTime+0.4);
+    }
+  } catch(e) { /* fallo silencioso */ }
+}
+
+// Re-activar botón cuando el usuario modifique el formulario
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('#formReserva input, #formReserva select, #formReserva textarea').forEach(el=>{
+    el.addEventListener('input',activarBotonGuardar);
+    el.addEventListener('change',activarBotonGuardar);
+  });
+});
 
 // ═══════════════════════════════════════════════════════════
 //  EDITAR RESERVA
