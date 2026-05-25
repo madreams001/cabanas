@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'proyectos/cabanas/minis/**'
+      - 'minis/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 jobs:
@@ -19,6 +19,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: proyectos/cabanas/minis
+          path: minis
       - id: deployment
         uses: actions/deploy-pages@v4

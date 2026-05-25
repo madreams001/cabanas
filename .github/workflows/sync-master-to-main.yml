@@ -2,9 +2,6 @@ name: Sync master → main
 on:
   push:
     branches: [master]
-    paths:
-      - 'proyectos/cabanas/**'
-      - '.github/workflows/**'
 jobs:
   sync:
     runs-on: ubuntu-latest
