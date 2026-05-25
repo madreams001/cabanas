@@ -1264,6 +1264,7 @@ body {
 
       <div class="form-actions">
         <button class="btn-secondary" onclick="clearForm()">Limpiar</button>
+        <button class="btn-secondary rc-delete" id="btnEliminarForm" onclick="eliminarForm()" style="display:none;">🗑️ Eliminar</button>
         <button class="btn-primary" id="btnGuardar" onclick="guardarReservaConEdicion()">
           💾 Guardar reserva
         </button>
@@ -2524,6 +2525,7 @@ function exportCSV() {
 //  HELPERS FORMULARIO
 // ═══════════════════════════════════════════════════════════
 function clearForm() {
+  editandoReserva = null;
   ['fCabaña','fTipo','fEstado','fPago'].forEach(id=>document.getElementById(id).value='');
   ['fNombre','fDni','fTel','fEmail','fDir','fEntrada','fSalida','fNoches','fMonto','fObs','fNotaInterna'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fSocio').value = usuarioActual;
@@ -2532,6 +2534,8 @@ function clearForm() {
   if (titulo) titulo.textContent = '➕ Nueva reserva';
   const btn = document.getElementById('btnGuardar');
   if (btn) btn.innerHTML = '💾 Guardar reserva';
+  const btnEliminar = document.getElementById('btnEliminarForm');
+  if (btnEliminar) btnEliminar.style.display = 'none';
   const badge = document.getElementById('estadoBadge');
   badge.style.background='var(--surface2)'; badge.style.color='var(--text-muted)'; badge.textContent='Sin estado seleccionado';
   hideAlerts();
@@ -2603,9 +2607,16 @@ document.addEventListener('DOMContentLoaded',()=>{
 // ═══════════════════════════════════════════════════════════
 //  EDITAR RESERVA
 // ═══════════════════════════════════════════════════════════
+
+/** Reserva que se está editando actualmente (para el botón eliminar en el form) */
+let editandoReserva = null;
+
 function editarReserva(id) {
   const r = reservas.find(x => x.ID.toString() === id.toString());
   if (!r) return;
+
+  editandoReserva = { id: r.ID, nombre: r.Nombre, socio: r.Socio };
+
   showTab('nueva');
   document.getElementById('fEditId').value    = r.ID;
   document.getElementById('fCabaña').value    = r.Cabaña;
@@ -2624,8 +2635,30 @@ function editarReserva(id) {
   document.getElementById('fNotaInterna').value = r.NotaInterna||'';
   document.getElementById('formTitulo').textContent = '✏️ Editando reserva — ' + r.Nombre;
   document.getElementById('btnGuardar').innerHTML   = '💾 Guardar cambios';
+
+  // Mostrar botón eliminar con permisos
+  const btnEliminar = document.getElementById('btnEliminarForm');
+  const esAdmin = adminSession;
+  const esDueño = esAdmin || !!(usuarioActual &&
+    usuarioActual.trim().toLowerCase() === (r.Socio||'').trim().toLowerCase());
+  if (esDueño) {
+    btnEliminar.style.display = 'inline-flex';
+    btnEliminar.disabled = false;
+    btnEliminar.title = 'Eliminar esta reserva';
+  } else {
+    btnEliminar.style.display = 'inline-flex';
+    btnEliminar.disabled = true;
+    btnEliminar.title = 'Solo ' + (r.Socio||'quien la cargó') + ' puede eliminar esta reserva.';
+  }
+
   setTimeout(checkConflict, 50);
   window.scrollTo({top:0, behavior:'smooth'});
+}
+
+async function eliminarForm() {
+  if (!editandoReserva) return;
+  await eliminar(editandoReserva.id, editandoReserva.nombre||'', editandoReserva.socio||'');
+  clearForm();
 }
 
 // ═══════════════════════════════════════════════════════════
