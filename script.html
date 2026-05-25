@@ -727,6 +727,7 @@ async function guardarReservaConEdicion() {
     if (!dni)    { showErr('Ingresá el DNI o CUIT.'); return; }
     if (!ent)    { showErr('Seleccioná la fecha de entrada.'); return; }
     if (!sal)    { showErr('Seleccioná la fecha de salida.'); return; }
+    if (sal <= ent) { showErr('La fecha de salida debe ser posterior a la de entrada.'); return; }
 
     const payload = {
       cabaña:      cab,
