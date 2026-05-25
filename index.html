@@ -2570,7 +2570,7 @@ function activarBotonGuardar() {
 
 // Re-activar botón cuando el usuario modifique cualquier campo del formulario
 document.addEventListener('DOMContentLoaded',()=>{
-  document.querySelectorAll('#formReserva input, #formReserva select, #formReserva textarea').forEach(el=>{
+  document.querySelectorAll('#formCard input, #formCard select, #formCard textarea').forEach(el=>{
     el.addEventListener('input',activarBotonGuardar);
     el.addEventListener('change',activarBotonGuardar);
   });
