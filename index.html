@@ -990,6 +990,8 @@ body {
 <!-- ── Sonidos de feedback ────────────────────────────── -->
 <audio id="sonidoExito" preload="auto" src="sonido-exito.mp3"></audio>
 <audio id="sonidoError" preload="auto" src="sonido-error.mp3"></audio>
+<audio id="sonidoBorrar" preload="auto" src="sonido-borrar.mp3"></audio>
+<audio id="sonidoEditar" preload="auto" src="sonido-editar.mp3"></audio>
 
 <!-- Banner de admin en modo mantenimiento -->
 <div class="admin-maint-banner" id="adminMaintBanner">
@@ -2106,7 +2108,7 @@ async function guardarReservaConEdicion() {
         formularioActivo = false;
         if (IS_CONFIGURED) await cargarReservas();
         else renderAll();
-        showOk('✅ Reserva de ' + nombre + ' actualizada correctamente.');
+        showOk('✅ Reserva de ' + nombre + ' actualizada correctamente.', 'sonidoEditar');
         clearForm();
       } else if (result.conflicto) {
         showErr('⚠️ Conflicto en servidor: ' + result.error);
@@ -2144,11 +2146,12 @@ async function eliminar(id, nombre, socioCargo) {
   try {
     if (IS_CONFIGURED) {
       const result = await apiEliminar(id);
-      if (result.ok) await cargarReservas();
+      if (result.ok) { await cargarReservas(); document.getElementById('sonidoBorrar').play().catch(()=>{}); }
       else alert('Error al eliminar: ' + result.error);
     } else {
       reservas = reservas.filter(r=>r.ID.toString()!==id.toString());
       renderAll();
+      document.getElementById('sonidoBorrar').play().catch(()=>{});
     }
     setSyncStatus('ok', 'Sincronizado · ' + new Date().toLocaleTimeString('es-AR'));
   } catch(e) {
@@ -2549,11 +2552,11 @@ function showErr(msg) {
   desactivarBotonGuardar();
 }
 
-function showOk(msg) {
+function showOk(msg, soundId) {
   const el=document.getElementById('alertOk');
   el.innerHTML=msg; el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'), 5000);
-  document.getElementById('sonidoExito').play().catch(()=>{});
+  document.getElementById(soundId||'sonidoExito').play().catch(()=>{});
 }
 
 function desactivarBotonGuardar() {
